@@ -1,0 +1,44 @@
+[project]
+name = "mc-qqbot-next"
+version = "0.0.0-dev"
+description = "QQ bot for managing Minecraft servers running in docker, and more"
+readme = "README.md"
+requires-python = ">=3.12, <4.0"
+
+[tool.nonebot]
+adapters = [
+    { name = "OneBot V11", module_name = "nonebot.adapters.onebot.v11" },
+    {name = "Console", module_name = "nonebot.adapters.console"}
+]
+plugins = ["nonebot_plugin_apscheduler", "nonebot-plugin-orm"]
+plugin_dirs = ["mc_qqbot_next/plugins"]
+builtin_plugins = []
+
+[tool.poetry]
+name = "mc-qqbot-next"
+version = "0.0.0-dev"
+description = "QQ bot for managing Minecraft servers running in docker, and more"
+authors = ["xyqyear <xyqyear@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.12"
+nonebot2 = {extras = ["websockets"], version = "^2.3.3"}
+nb-cli = "^1.4.2"
+nonebot-adapter-onebot = "^2.4.6"
+setuptools = "^75.2.0"
+nonebot-adapter-console = "^0.6.0"
+minecraft-docker-manager-lib = {git = "https://github.com/xyqyear/minecraft-docker-manager-lib", rev = "v0.0.4"}
+nonebot-plugin-apscheduler = "^0.5.0"
+nonebot-plugin-orm = {extras = ["sqlite"], version = "^0.7.6"}
+aiohttp = "^3.10.10"
+
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.29.5"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
