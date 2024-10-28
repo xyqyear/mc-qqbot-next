@@ -1,5 +1,7 @@
 # mc-qqbot-next
 
+![](https://wakapi.xyqyear.com/api/badge/xyqyear/interval:any/project:mc-qqbot-next)
+
 ## How to start
 
 1. generate project using `nb create` .
