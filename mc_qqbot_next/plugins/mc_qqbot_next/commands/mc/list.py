@@ -1,6 +1,6 @@
 from nonebot import on_command
 
-from ...mc import list_players_for_all_servers
+from ...docker import list_players_for_all_servers
 
 ping = on_command("ping", aliases={"list"})
 
