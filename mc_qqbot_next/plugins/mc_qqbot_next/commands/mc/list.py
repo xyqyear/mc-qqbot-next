@@ -15,7 +15,7 @@ async def handle_ping():
     [vanilla]: player1, player2
     [other]: player3
     没人: [atm9s], [ftb]
-    g了: [badserver1], [badserver2]
+    别急: [badserver1], [badserver2]
     ---
     """
     servers_player_listing = await list_players_for_all_servers()
