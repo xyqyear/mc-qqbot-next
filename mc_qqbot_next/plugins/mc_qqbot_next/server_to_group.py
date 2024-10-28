@@ -87,8 +87,6 @@ async def handle_command(
         )
 
 
-# TODO 在docker.py或mc.py文件中实现发送消息到服务器，并且可以指定玩家。（用于命令执行情况提示。之后也可以用于管理员向服务器发送消息。）
-# TODO 这个发送消息的函数可以指定服务器或者玩家。可以实现全局发送。
 async def handle_send_command(
     bot: Bot,
     server_name: str,
