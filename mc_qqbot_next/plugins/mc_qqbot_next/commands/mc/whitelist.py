@@ -18,6 +18,9 @@ whitelist_add = whitelist.command(
 whitelist_remove = whitelist.command(
     "remove",
 )
+whitelist_list = whitelist.command(
+    "list",
+)
 
 
 @whitelist_add.handle()
@@ -40,3 +43,14 @@ async def handle_whitelist_remove(
         f"whitelist remove {command_content}"
     )
     await whitelist_remove.finish(result)
+
+
+@whitelist_list.handle()
+async def handle_whitelist_list(
+    arg_and_target: tuple[str, str] = Depends(extract_arg_and_target),
+):
+    target_server = arg_and_target[1]
+    result = await docker_mc_manager.get_instance(target_server).send_command_rcon(
+        "whitelist list"
+    )
+    await whitelist_list.finish(result)
