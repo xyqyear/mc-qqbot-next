@@ -1,4 +1,4 @@
-from minecraft_docker_manager_lib.instance import MCPlayerMessage
+from minecraft_docker_manager_lib.instance import MCInstance, MCPlayerMessage
 from nonebot.adapters.onebot.v11.bot import Bot
 from nonebot.log import logger
 
@@ -10,6 +10,7 @@ server_log_pointer_dict = dict[str, int]()
 
 
 async def check_mc_logs():
+    logger.trace("Checking mc logs")
     bot = get_onebot_bot()
     if bot is None:
         logger.trace("No onebot bot fount, skip checking mc logs")
@@ -25,8 +26,17 @@ async def check_mc_logs():
         log = await instance.get_logs_from_file(log_pointer)
         server_log_pointer_dict[server_name] = log.pointer
 
-        player_messages = instance._parse_player_messages_from_log(log.content)
-        await handle_player_messages(bot, server_name, player_messages)
+        await handle_new_log(bot, server_name, log.content)
+
+
+async def handle_new_log(
+    bot: Bot,
+    server_name: str,
+    log_content: str,
+):
+    player_messages = MCInstance.parse_player_messages_from_log(log_content)
+    logger.trace(f"Player messages: {player_messages}")
+    await handle_player_messages(bot, server_name, player_messages)
 
 
 async def handle_player_messages(
@@ -77,7 +87,7 @@ async def handle_command(
         )
 
 
-# TODO 在docker.py或mc.py文件中实现发送消息到服务器，并且可以指定玩家。
+# TODO 在docker.py或mc.py文件中实现发送消息到服务器，并且可以指定玩家。（用于命令执行情况提示。之后也可以用于管理员向服务器发送消息。）
 # TODO 这个发送消息的函数可以指定服务器或者玩家。可以实现全局发送。
 async def handle_send_command(
     bot: Bot,
