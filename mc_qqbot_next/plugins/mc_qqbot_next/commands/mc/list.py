@@ -40,7 +40,7 @@ async def handle_ping():
     if servers_without_players:
         message_parts.append(f"没人: {', '.join(servers_without_players)}")
     if servers_bad:
-        message_parts.append(f"g了: {', '.join(servers_bad)}")
+        message_parts.append(f"别急: {', '.join(servers_bad)}")
 
     final_message = (
         "\n".join(message_parts) if message_parts else "当前没有运行中的服务器"
