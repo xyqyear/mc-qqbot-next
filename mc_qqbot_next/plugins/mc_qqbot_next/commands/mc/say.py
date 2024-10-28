@@ -32,8 +32,7 @@ def parse_response(permission, response):
 from nonebot import on_command
 from nonebot.params import Depends
 
-from ...db.model import QQUUIDMapping
-from ...dependencies import extract_arg_and_target, mc_mapping
+from ...dependencies import extract_arg_and_target, get_player_name
 from ...docker import docker_mc_manager
 from ...rules import is_from_configured_group
 
@@ -48,14 +47,14 @@ say = on_command(
 @say.handle()
 async def handle_say(
     arg_and_target: tuple[str, str] = Depends(extract_arg_and_target),
-    mapping: QQUUIDMapping | None = Depends(mc_mapping),
+    player_name: str | None = Depends(get_player_name),
 ):
     message, target_server = arg_and_target
-    if not mapping:
+    if player_name is None:
         await say.finish('在任意服务器输入 "\\\\bind QQ号" 来绑定游戏账号')
         return
     escaped_message = message.replace("\\", "\\\\").replace('"', '\\"')
-    command = f'tellraw @a {{"text": "*<{mapping.player_name}> {escaped_message}", "color": "yellow"}}'
+    command = f'tellraw @a {{"text": "*<{player_name}> {escaped_message}", "color": "yellow"}}'
     try:
         await docker_mc_manager.get_instance(target_server).send_command_rcon(command)
     except RuntimeError:
