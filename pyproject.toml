@@ -7,10 +7,9 @@ requires-python = ">=3.12, <4.0"
 
 [tool.nonebot]
 adapters = [
-    { name = "OneBot V11", module_name = "nonebot.adapters.onebot.v11" },
-    {name = "Console", module_name = "nonebot.adapters.console"}
+    { name = "OneBot V11", module_name = "nonebot.adapters.onebot.v11" }
 ]
-plugins = ["nonebot_plugin_apscheduler", "nonebot-plugin-orm"]
+plugins = ["nonebot_plugin_apscheduler"]
 plugin_dirs = ["mc_qqbot_next/plugins"]
 builtin_plugins = []
 
