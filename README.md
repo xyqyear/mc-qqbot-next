@@ -1,6 +1,10 @@
 # mc-qqbot-next
 
+<div align="center">
+
 ![](https://wakapi.xyqyear.com/api/badge/xyqyear/interval:any/project:mc-qqbot-next)
+
+</div>
 
 ## How to start
 
