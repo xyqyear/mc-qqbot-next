@@ -1,4 +1,5 @@
 import asyncio
+from typing import Literal
 
 from minecraft_docker_manager_lib.manager import DockerMCManager
 
@@ -68,17 +69,78 @@ async def list_players_for_all_servers():
     )
     servers_info = sorted(servers_info, key=lambda server_info: server_info.game_port)
 
-    # for easier exception handling
-    async def get_online_players(server_info):
-        try:
-            return await docker_mc_manager.get_instance(server_info.name).list_players()
-        except Exception:
-            return None
-
-    online_players_list: list[list[str] | None] = await asyncio.gather(
-        *[get_online_players(server_info) for server_info in servers_info]
+    online_players_list = await asyncio.gather(
+        *[
+            docker_mc_manager.get_instance(server_info.name).list_players()
+            for server_info in servers_info
+        ],
+        return_exceptions=True,
     )
+
+    online_players_list = [
+        players if not isinstance(players, BaseException) else None
+        for players in online_players_list
+    ]
+
     return {
         server_info.name: players
         for server_info, players in zip(servers_info, online_players_list)
     }
+
+
+ColorsT = Literal[
+    "black",
+    "dark_blue",
+    "dark_green",
+    "dark_aqua",
+    "dark_red",
+    "dark_purple",
+    "gold",
+    "gray",
+    "dark_gray",
+    "blue",
+    "green",
+    "aqua",
+    "red",
+    "light_purple",
+    "yellow",
+    "white",
+]
+
+
+async def send_message(
+    message: str,
+    target_server: str | None,
+    target_player: str = "@a",
+    color: ColorsT = "yellow",
+):
+    """
+    向 Minecraft 服务器发送消息
+
+    Args:
+        message (str): 要发送的消息
+        target_server (str | None): 目标服务器名称
+        target_player (str): 目标玩家，默认为 "@a" (所有玩家)
+        color (ColorsT): 消息颜色，默认为 "yellow"
+
+    Returns:
+        list[str]: 发送失败的服务器名称列表
+    """
+    if target_server is None:
+        target_servers = await docker_mc_manager.get_running_server_names()
+    else:
+        target_servers = [target_server]
+
+    tasks = [
+        docker_mc_manager.get_instance(server_name).send_command_rcon(
+            f'tellraw {target_player} {{"text": "{message}", "color": "{color}"}}'
+        )
+        for server_name in target_servers
+    ]
+    result = await asyncio.gather(*tasks, return_exceptions=True)
+
+    return [
+        server_name
+        for server_name, r in zip(target_servers, result)
+        if isinstance(r, BaseException)
+    ]

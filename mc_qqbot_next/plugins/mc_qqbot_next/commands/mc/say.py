@@ -33,7 +33,7 @@ from nonebot import on_command
 from nonebot.params import Depends
 
 from ...dependencies import extract_arg_and_target, get_player_name
-from ...docker import docker_mc_manager
+from ...docker import send_message
 from ...rules import is_from_configured_group
 
 say = on_command(
@@ -54,8 +54,7 @@ async def handle_say(
         await say.finish('在任意服务器输入 "\\\\bind QQ号" 来绑定游戏账号')
         return
     escaped_message = message.replace("\\", "\\\\").replace('"', '\\"')
-    command = f'tellraw @a {{"text": "*<{player_name}> {escaped_message}", "color": "yellow"}}'
-    try:
-        await docker_mc_manager.get_instance(target_server).send_command_rcon(command)
-    except RuntimeError:
-        await say.finish("发送失败")
+    sending_message = f"*<{player_name}> {escaped_message}"
+    failed_servers = await send_message(sending_message, target_server)
+    if failed_servers:
+        await say.finish(f"发送失败：{', '.join(failed_servers)}")
