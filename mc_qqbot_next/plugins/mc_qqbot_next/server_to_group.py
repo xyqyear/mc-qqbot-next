@@ -68,14 +68,12 @@ async def handle_command(
         arg = command[len("bind ") :]
         await handle_bind_command(
             bot=bot,
-            server_name=server_name,
             player_name=player_name,
             arg=arg,
         )
-    elif command.startswith("unbind"):
+    elif command == "unbind":
         await handle_unbind_command(
             bot=bot,
-            server_name=server_name,
             player_name=player_name,
         )
     else:
@@ -102,7 +100,6 @@ async def handle_send_command(
 # TODO
 async def handle_bind_command(
     bot: Bot,
-    server_name: str,
     player_name: str,
     arg: str,
 ): ...
@@ -110,7 +107,6 @@ async def handle_bind_command(
 
 async def handle_unbind_command(
     bot: Bot,
-    server_name: str,
     player_name: str,
 ): ...
 
