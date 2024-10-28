@@ -51,14 +51,14 @@ async def mc_mapping(
     db_session: async_scoped_session, event: Event = Depends(EventMessage)
 ) -> QQUUIDMapping | None:
     """
-    从事件中提取发送者的 UUID
+    从事件中提取发送者的 QQUUIDMapping
 
     Args:
         session (async_scoped_session): 数据库会话
         event (Event): 事件对象
 
     Returns:
-        str | None: UUID 或 None
+        str | None: QQUUIDMapping 或 None
     """
     sender_qq_id = event.get_user_id()
     return await get_mapping_by_qq_id(db_session, sender_qq_id)
