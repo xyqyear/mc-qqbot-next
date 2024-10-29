@@ -1,10 +1,11 @@
 import re
 
-from nonebot.adapters import Event, Message
-from nonebot.params import CommandArg, Depends, EventMessage
+from nonebot.adapters import Event
+from nonebot.adapters.onebot.v11 import Message
+from nonebot.params import CommandArg
 
 from .config import config
-from .db.crud import get_player_name_by_qq_id
+from .db.crud.binding import get_player_name_by_qq_id
 
 
 def extract_content_and_target_from_str(command: str) -> tuple[str, str | None]:
@@ -45,7 +46,7 @@ async def extract_arg_and_target(msg: Message = CommandArg()) -> tuple[str, str]
     return command_content, (target_server if target_server else config.default_server)
 
 
-async def get_player_name(event: Event = Depends(EventMessage)) -> str | None:
+async def get_player_name(event: Event) -> str | None:
     """
     从事件中提取发送者的QQ号，并返回对应的玩家名
 
