@@ -110,7 +110,7 @@ ColorsT = Literal[
 
 async def send_message(
     message: str,
-    target_server: str | None,
+    target_server: str | None = None,
     target_player: str = "@a",
     color: ColorsT = "yellow",
 ):
