@@ -6,16 +6,19 @@ from nonebot.params import CommandArg
 
 from .config import config
 from .db.crud.binding import get_player_name_by_qq_id
+from .docker import locate_server_name_with_prefix
 
 
-def extract_content_and_target_from_str(command: str) -> tuple[str, str | None]:
+async def extract_content_and_target_from_str(command: str) -> tuple[str, str | None]:
     """
     见 extract_content_and_target
     """
     match = re.search(r"\s+/(\S+)$", command)
     if match:
         command_content = command[: match.start()].rstrip()
-        return command_content, match.group(1)
+        potential_target = match.group(1)
+        target_server = await locate_server_name_with_prefix(potential_target)
+        return command_content, target_server
     return command, None
 
 
@@ -42,7 +45,7 @@ async def extract_arg_and_target(msg: Message = CommandArg()) -> tuple[str, str]
         ('/hello', 'test')
     """
     text = msg.extract_plain_text()
-    command_content, target_server = extract_content_and_target_from_str(text)
+    command_content, target_server = await extract_content_and_target_from_str(text)
     return command_content, (target_server if target_server else config.default_server)
 
 
