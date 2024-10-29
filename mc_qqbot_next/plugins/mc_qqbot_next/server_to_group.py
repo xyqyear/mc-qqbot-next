@@ -1,3 +1,5 @@
+import asyncio
+
 from minecraft_docker_manager_lib.instance import MCInstance, MCPlayerMessage
 from nonebot.adapters.onebot.v11.bot import Bot
 from nonebot.log import logger
@@ -6,11 +8,13 @@ from sqlalchemy.exc import IntegrityError
 from .bot import get_onebot_bot
 from .config import config
 from .db.crud import (
+    create_or_update_mc_player_info,
     create_qq_uuid_mapping_by_player_name,
     delete_qq_uuid_mapping,
     get_qq_by_player_name,
 )
 from .docker import docker_mc_manager, send_message
+from .mc import PlayerInfo, parse_player_uuid_and_name_from_log
 
 server_log_pointer_dict = dict[str, int]()
 
@@ -41,8 +45,12 @@ async def handle_new_log(
     log_content: str,
 ):
     player_messages = MCInstance.parse_player_messages_from_log(log_content)
-    logger.trace(f"Player messages: {player_messages}")
+    logger.debug(f"Player messages: {player_messages}")
     await handle_player_messages(bot, server_name, player_messages)
+
+    player_info_list = parse_player_uuid_and_name_from_log(log_content)
+    logger.debug(f"Player info list (player join): {player_info_list}")
+    await handle_player_join(player_info_list)
 
 
 async def handle_player_messages(
@@ -70,8 +78,9 @@ async def handle_command(
     player_name: str,
     command: str,
 ):
-    if command.startswith("bind "):
-        arg = command[len("bind ") :]
+    command = command.strip()
+    if command.startswith("bind ") or command == "bind":
+        arg = command[len("bind") :]
         arg = arg.strip()
         await handle_bind_command(
             server_name=server_name,
@@ -175,8 +184,11 @@ async def handle_bind_command(
 
 
 async def handle_player_join(
-    bot: Bot,
-    server_name: str,
-    player_name: str,
-    join: bool,
-): ...
+    plyaer_info_list: list[PlayerInfo],
+):
+    await asyncio.gather(
+        *[
+            create_or_update_mc_player_info(player_info.uuid, player_info.name)
+            for player_info in plyaer_info_list
+        ]
+    )

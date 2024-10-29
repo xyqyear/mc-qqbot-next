@@ -1,3 +1,5 @@
+import re
+from dataclasses import dataclass
 from typing import Literal
 
 import aiohttp
@@ -58,3 +60,35 @@ async def find_uuid_by_name(name: str, timeout: int = 5):
                 raise ValueError("Invalid Name")
             profile = MinecraftIDName(**profile_data)
             return profile.id
+
+
+@dataclass
+class PlayerInfo:
+    uuid: str
+    name: str
+
+
+def parse_player_uuid_and_name_from_log(log_content: str):
+    """
+    Parse player UUID and name from log content.
+    The uuid in return object is without dashes.
+
+    Examples:
+        [00:00:00] [User Authenticator #1/INFO]: UUID of player Notch is 069a79f4-44e9-4726-a5be-fca90e38aaf5
+        [00:00:00] [User Authenticator #1/INFO]: UUID of player Notch is 069a79f4-44e9-4726-a5be-fca90e38aaf5
+
+    Returns:
+        list[PlayerInfo]: List of player UUID and name.
+    """
+    pattern = re.compile(
+        r"^\[\d{2}:\d{2}:\d{2}\] \[User Authenticator.*\]: UUID of player (\w+) is ([0-9a-fA-F-]{36})"
+    )
+
+    player_info_list = list[PlayerInfo]()
+    for line in log_content.splitlines():
+        match = pattern.match(line)
+        if match:
+            name, uuid = match.groups()
+            player_info_list.append(PlayerInfo(uuid=uuid.replace("-", ""), name=name))
+
+    return player_info_list
