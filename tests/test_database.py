@@ -3,6 +3,33 @@ from sqlalchemy.exc import IntegrityError
 
 
 @pytest.mark.asyncio
+async def test_message_target():
+    from nonebot_plugin_orm import init_orm
+
+    from mc_qqbot_next.plugins.mc_qqbot_next.db.crud.message import (
+        create_message_target,
+        delete_message_target_by_message_id,
+        get_message_target_by_message_id,
+    )
+
+    await init_orm()
+    await create_message_target(123456)
+    message_target = await get_message_target_by_message_id(123456)
+    assert message_target is not None
+    assert message_target.target_server is None
+    assert message_target.target_player is None
+    await create_message_target(654321, "server", "player")
+    message_target = await get_message_target_by_message_id(654321)
+    assert message_target is not None
+    assert message_target.target_server == "server"
+    assert message_target.target_player == "player"
+
+    await delete_message_target_by_message_id(123456)
+    assert await get_message_target_by_message_id(123456) is None
+    await delete_message_target_by_message_id(654321)
+
+
+@pytest.mark.asyncio
 async def test_uuid_name_mapping():
     from nonebot_plugin_orm import init_orm
 

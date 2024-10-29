@@ -19,3 +19,10 @@ class MCPlayerInfo(Model):
     qq_uuid_mapping: Mapped["QQUUIDMapping"] = relationship(
         back_populates="mc_player_info"
     )
+
+
+class MessageTarget(Model):
+    __tablename__ = "message_target"
+    message_id: Mapped[int] = mapped_column(primary_key=True)
+    target_server: Mapped[str | None] = mapped_column(default=None)
+    target_player: Mapped[str | None] = mapped_column(default=None)
