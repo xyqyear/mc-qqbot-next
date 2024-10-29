@@ -2,7 +2,6 @@ import re
 
 from nonebot.adapters import Event, Message
 from nonebot.params import CommandArg, Depends, EventMessage
-from nonebot_plugin_orm import async_scoped_session
 
 from .config import config
 from .db.crud import get_player_name_by_qq_id
@@ -46,9 +45,7 @@ async def extract_arg_and_target(msg: Message = CommandArg()) -> tuple[str, str]
     return command_content, (target_server if target_server else config.default_server)
 
 
-async def get_player_name(
-    db_session: async_scoped_session, event: Event = Depends(EventMessage)
-) -> str | None:
+async def get_player_name(event: Event = Depends(EventMessage)) -> str | None:
     """
     从事件中提取发送者的QQ号，并返回对应的玩家名
 
@@ -60,4 +57,4 @@ async def get_player_name(
         str | None: 玩家名
     """
     sender_qq_id = event.get_user_id()
-    return await get_player_name_by_qq_id(db_session, sender_qq_id)
+    return await get_player_name_by_qq_id(sender_qq_id)
