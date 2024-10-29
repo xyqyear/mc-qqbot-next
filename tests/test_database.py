@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 async def test_uuid_name_mapping():
     from nonebot_plugin_orm import init_orm
 
-    from mc_qqbot_next.plugins.mc_qqbot_next.db.crud import (
+    from mc_qqbot_next.plugins.mc_qqbot_next.db.crud.binding import (
         create_or_update_mc_player_info,
         delete_mc_player_info,
         get_uuid_by_player_name,
@@ -24,7 +24,7 @@ async def test_uuid_name_mapping():
 async def test_avoid_duplicated_binding():
     from nonebot_plugin_orm import init_orm
 
-    from mc_qqbot_next.plugins.mc_qqbot_next.db.crud import (
+    from mc_qqbot_next.plugins.mc_qqbot_next.db.crud.binding import (
         create_qq_uuid_mapping_by_player_name,
         delete_mc_player_info,
         delete_qq_uuid_mapping,
@@ -44,7 +44,7 @@ async def test_avoid_duplicated_binding():
 async def test_all():
     from nonebot_plugin_orm import init_orm
 
-    from mc_qqbot_next.plugins.mc_qqbot_next.db.crud import (
+    from mc_qqbot_next.plugins.mc_qqbot_next.db.crud.binding import (
         create_qq_uuid_mapping,
         create_qq_uuid_mapping_by_player_name,
         delete_mc_player_info,

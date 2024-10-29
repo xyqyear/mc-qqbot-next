@@ -1,17 +1,8 @@
-from contextlib import asynccontextmanager
-
-from nonebot_plugin_orm import get_session
 from sqlalchemy import select
 
-from ..mc import find_name_by_uuid, find_uuid_by_name
-from .model import MCPlayerInfo, QQUUIDMapping
-
-
-@asynccontextmanager
-async def get_session_scope():
-    session = get_session()
-    async with session.begin():
-        yield session
+from ...mc import find_name_by_uuid, find_uuid_by_name
+from ..model import MCPlayerInfo, QQUUIDMapping
+from . import get_session_scope
 
 
 async def get_player_name_by_qq_id(qq_id: str) -> str | None:
