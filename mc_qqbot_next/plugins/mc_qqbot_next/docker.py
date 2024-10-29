@@ -114,6 +114,7 @@ async def tell_raw(
     target: str = "@a",
     color: ColorsT = "yellow",
 ):
+    message = message.replace("\\", "\\\\")
     for line in message.splitlines():
         await docker_mc_manager.get_instance(server_name).send_command_rcon(
             f'tellraw {target} {{"text": "{line}", "color": "{color}"}}'
@@ -138,8 +139,6 @@ async def send_message(
     Returns:
         list[str]: 发送失败的服务器名称列表
     """
-    message = message.replace("\\", "\\\\").replace('"', '\\"')
-
     if target_server is None:
         target_servers = await docker_mc_manager.get_running_server_names()
     else:
