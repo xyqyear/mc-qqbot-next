@@ -1,4 +1,4 @@
-from nonebot_plugin_orm import AsyncSession, async_scoped_session, get_session
+from nonebot_plugin_orm import AsyncSession, async_scoped_session
 from sqlalchemy import select
 
 from ..mc import find_name_by_uuid, find_uuid_by_name
