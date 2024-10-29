@@ -7,14 +7,16 @@ async def test_uuid_name_mapping():
     from nonebot_plugin_orm import init_orm
 
     from mc_qqbot_next.plugins.mc_qqbot_next.db.crud import (
-        create_mc_player_info,
+        create_or_update_mc_player_info,
         delete_mc_player_info,
         get_uuid_by_player_name,
     )
 
     await init_orm()
-    await create_mc_player_info("069a79f444e94726a5befca90e38aaf5", "Notch")
+    await create_or_update_mc_player_info("069a79f444e94726a5befca90e38aaf5", "Notch")
     assert await get_uuid_by_player_name("Notch") == "069a79f444e94726a5befca90e38aaf5"
+    await create_or_update_mc_player_info("069a79f444e94726a5befca90e38aaf5", "Dream")
+    assert await get_uuid_by_player_name("Dream") == "069a79f444e94726a5befca90e38aaf5"
     await delete_mc_player_info("069a79f444e94726a5befca90e38aaf5")
 
 

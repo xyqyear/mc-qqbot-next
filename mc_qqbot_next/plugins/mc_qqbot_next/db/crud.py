@@ -89,15 +89,6 @@ async def create_qq_uuid_mapping(qq_id: str, uuid: str) -> None:
         session.add(mapping)
 
 
-async def create_mc_player_info(uuid: str, name: str) -> None:
-    """
-    Create a UUID-name mapping.
-    """
-    async with get_session_scope() as session:
-        mc_player_info = MCPlayerInfo(uuid=uuid, name=name)
-        session.add(mc_player_info)
-
-
 async def delete_qq_uuid_mapping(qq_id: str) -> None:
     """
     Remove a QQ-UUID mapping.
@@ -105,6 +96,18 @@ async def delete_qq_uuid_mapping(qq_id: str) -> None:
     async with get_session_scope() as session:
         if result := await session.get(QQUUIDMapping, qq_id):
             await session.delete(result)
+
+
+async def create_or_update_mc_player_info(uuid: str, name: str) -> None:
+    """
+    Create or update a player.
+    """
+    async with get_session_scope() as session:
+        if result := await session.get(MCPlayerInfo, uuid):
+            result.name = name
+        else:
+            mc_player_info = MCPlayerInfo(uuid=uuid, name=name)
+            session.add(mc_player_info)
 
 
 async def delete_mc_player_info(uuid: str) -> None:
@@ -117,12 +120,3 @@ async def delete_mc_player_info(uuid: str) -> None:
     async with get_session_scope() as session:
         if result := await session.get(MCPlayerInfo, uuid):
             await session.delete(result)
-
-
-async def update_mc_player_info(uuid: str, name: str) -> None:
-    """
-    Update the name of a player.
-    """
-    async with get_session_scope() as session:
-        if result := await session.get(MCPlayerInfo, uuid):
-            result.name = name
