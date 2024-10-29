@@ -111,19 +111,19 @@ ColorsT = Literal[
 async def tell_raw(
     message: str,
     server_name: str,
-    target_player: str = "@a",
+    target: str = "@a",
     color: ColorsT = "yellow",
 ):
     for line in message.splitlines():
         await docker_mc_manager.get_instance(server_name).send_command_rcon(
-            f'tellraw {target_player} {{"text": "{line}", "color": "{color}"}}'
+            f'tellraw {target} {{"text": "{line}", "color": "{color}"}}'
         )
 
 
 async def send_message(
     message: str,
     target_server: str | None = None,
-    target_player: str = "@a",
+    target_player: str | None = None,
     color: ColorsT = "yellow",
 ):
     """
@@ -132,7 +132,7 @@ async def send_message(
     Args:
         message (str): 要发送的消息
         target_server (str | None): 目标服务器名称
-        target_player (str): 目标玩家，默认为 "@a" (所有玩家)
+        target_player (str): 目标玩家，默认为 "@a"
         color (ColorsT): 消息颜色，默认为 "yellow"
 
     Returns:
@@ -144,6 +144,9 @@ async def send_message(
         target_servers = await docker_mc_manager.get_running_server_names()
     else:
         target_servers = [target_server]
+
+    if target_player is None:
+        target_player = "@a"
 
     tasks = [
         tell_raw(message, server_name, target_player, color)
