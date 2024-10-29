@@ -28,7 +28,7 @@ nonebot2 = {extras = ["fastapi"], version = "^2.3.3"}
 nb-cli = "^1.4.2"
 nonebot-adapter-onebot = "^2.4.6"
 setuptools = "^75.2.0"
-minecraft-docker-manager-lib = {git = "https://github.com/xyqyear/minecraft-docker-manager-lib", rev = "v0.1.0"}
+minecraft-docker-manager-lib = {git = "https://github.com/xyqyear/minecraft-docker-manager-lib", rev = "v0.1.6"}
 nonebot-plugin-apscheduler = "^0.5.0"
 nonebot-plugin-orm = {extras = ["sqlite"], version = "^0.7.6"}
 aiohttp = "^3.10.10"
