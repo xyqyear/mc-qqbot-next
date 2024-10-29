@@ -45,8 +45,9 @@ async def handle_new_log(
     log_content: str,
 ):
     player_messages = MCInstance.parse_player_messages_from_log(log_content)
-    logger.debug(f"Player messages: {player_messages}")
-    await handle_player_messages(bot, server_name, player_messages)
+    if player_messages:
+        logger.debug(f"Player messages: {player_messages}")
+        await handle_player_messages(bot, server_name, player_messages)
 
     player_info_list = parse_player_uuid_and_name_from_log(log_content)
     logger.debug(f"Player info list (player join): {player_info_list}")
