@@ -1,10 +1,16 @@
 from minecraft_docker_manager_lib.instance import MCInstance, MCPlayerMessage
 from nonebot.adapters.onebot.v11.bot import Bot
 from nonebot.log import logger
+from sqlalchemy.exc import IntegrityError
 
 from .bot import get_onebot_bot
 from .config import config
-from .docker import docker_mc_manager
+from .db.crud import (
+    create_qq_uuid_mapping_by_player_name,
+    delete_qq_uuid_mapping,
+    get_qq_by_player_name,
+)
+from .docker import docker_mc_manager, send_message
 
 server_log_pointer_dict = dict[str, int]()
 
@@ -66,15 +72,11 @@ async def handle_command(
 ):
     if command.startswith("bind "):
         arg = command[len("bind ") :]
+        arg = arg.strip()
         await handle_bind_command(
-            bot=bot,
+            server_name=server_name,
             player_name=player_name,
             arg=arg,
-        )
-    elif command == "unbind":
-        await handle_unbind_command(
-            bot=bot,
-            player_name=player_name,
         )
     else:
         await handle_send_command(
@@ -97,18 +99,79 @@ async def handle_send_command(
     )
 
 
-# TODO
 async def handle_bind_command(
-    bot: Bot,
+    server_name: str,
     player_name: str,
     arg: str,
-): ...
+):
+    match arg:
+        case "" | "help":
+            help_message = (
+                "使用方法：\n"
+                "\\\\bind get - 获取当前绑定信息\n"
+                "\\\\bind remove - 解除绑定\n"
+                "\\\\bind {qq号} - 绑定QQ号\n"
+                "\\\\bind help - 显示此帮助信息"
+            )
+            await send_message(
+                help_message,
+                target_server=server_name,
+                target_player=player_name,
+            )
+        case "get":
+            qq_id = await get_qq_by_player_name(player_name)
+            if qq_id is None:
+                await send_message(
+                    "未绑定QQ号",
+                    target_server=server_name,
+                    target_player=player_name,
+                )
+            else:
+                await send_message(
+                    f"已绑定QQ号：{qq_id}",
+                    target_server=server_name,
+                    target_player=player_name,
+                )
+        case "remove":
+            qq_id = await get_qq_by_player_name(player_name)
+            if qq_id is None:
+                await send_message(
+                    "未绑定QQ号",
+                    target_server=server_name,
+                    target_player=player_name,
+                )
+            else:
+                await delete_qq_uuid_mapping(qq_id)
+            await send_message(
+                f"解绑 {qq_id} 成功",
+                target_server=server_name,
+                target_player=player_name,
+            )
+        case _ if arg.isdigit() and 5 <= len(arg) <= 12:
+            try:
+                await create_qq_uuid_mapping_by_player_name(
+                    qq_id=arg,
+                    name=player_name,
+                )
+            except IntegrityError as e:
+                logger.info(e)
+                await send_message(
+                    "该QQ或游戏账号已有绑定",
+                    target_server=server_name,
+                    target_player=player_name,
+                )
 
-
-async def handle_unbind_command(
-    bot: Bot,
-    player_name: str,
-): ...
+            await send_message(
+                "绑定成功",
+                target_server=server_name,
+                target_player=player_name,
+            )
+        case _:
+            await send_message(
+                "无效QQ号",
+                target_server=server_name,
+                target_player=player_name,
+            )
 
 
 async def handle_player_join(
