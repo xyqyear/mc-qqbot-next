@@ -50,8 +50,9 @@ async def handle_new_log(
         await handle_player_messages(bot, server_name, player_messages)
 
     player_info_list = parse_player_uuid_and_name_from_log(log_content)
-    logger.debug(f"Player info list (player join): {player_info_list}")
-    await handle_player_join(player_info_list)
+    if player_info_list:
+        logger.debug(f"Player info list (player join): {player_info_list}")
+        await handle_player_join(player_info_list)
 
 
 async def handle_player_messages(
