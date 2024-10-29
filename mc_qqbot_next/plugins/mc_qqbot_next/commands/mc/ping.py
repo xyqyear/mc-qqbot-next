@@ -24,7 +24,7 @@ async def handle_ping():
     servers_without_players = []
     servers_bad = []
 
-    for server_name, players in servers_player_listing:
+    for server_name, players in servers_player_listing.items():
         if players is None:
             servers_bad.append(f"[{server_name}]")
             continue
