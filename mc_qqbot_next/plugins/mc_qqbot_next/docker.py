@@ -108,6 +108,18 @@ ColorsT = Literal[
 ]
 
 
+async def tell_raw(
+    message: str,
+    server_name: str,
+    target_player: str = "@a",
+    color: ColorsT = "yellow",
+):
+    for line in message.splitlines():
+        await docker_mc_manager.get_instance(server_name).send_command_rcon(
+            f'tellraw {target_player} {{"text": "{line}", "color": "{color}"}}'
+        )
+
+
 async def send_message(
     message: str,
     target_server: str | None = None,
@@ -126,15 +138,15 @@ async def send_message(
     Returns:
         list[str]: 发送失败的服务器名称列表
     """
+    message = message.replace("\\", "\\\\").replace('"', '\\"')
+
     if target_server is None:
         target_servers = await docker_mc_manager.get_running_server_names()
     else:
         target_servers = [target_server]
 
     tasks = [
-        docker_mc_manager.get_instance(server_name).send_command_rcon(
-            f'tellraw {target_player} {{"text": "{message}", "color": "{color}"}}'
-        )
+        tell_raw(message, server_name, target_player, color)
         for server_name in target_servers
     ]
     result = await asyncio.gather(*tasks, return_exceptions=True)
