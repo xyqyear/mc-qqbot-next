@@ -53,8 +53,7 @@ async def handle_say(
     if player_name is None:
         await say.finish('在任意服务器输入 "\\\\bind QQ号" 来绑定游戏账号')
         return
-    escaped_message = message.replace("\\", "\\\\").replace('"', '\\"')
-    sending_message = f"*<{player_name}> {escaped_message}"
+    sending_message = f"*<{player_name}> {message}"
     failed_servers = await send_message(sending_message, target_server)
     if failed_servers:
         await say.finish(f"发送失败：{', '.join(failed_servers)}")
