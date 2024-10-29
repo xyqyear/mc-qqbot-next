@@ -15,7 +15,7 @@ async def handle_ping():
     [vanilla]: player1, player2
     [other]: player3
     没人: [atm9s], [ftb]
-    别急: [badserver1], [badserver2]
+    无响应: [badserver1], [badserver2]
     ---
     """
     servers_player_listing = await list_players_for_all_servers()
@@ -40,7 +40,7 @@ async def handle_ping():
     if servers_without_players:
         message_parts.append(f"没人: {', '.join(servers_without_players)}")
     if servers_bad:
-        message_parts.append(f"别急: {', '.join(servers_bad)}")
+        message_parts.append(f"无响应: {', '.join(servers_bad)}")
 
     final_message = (
         "\n".join(message_parts) if message_parts else "当前没有运行中的服务器"
