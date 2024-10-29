@@ -15,7 +15,7 @@ builtin_plugins = []
 
 [tool.poetry]
 name = "mc-qqbot-next"
-version = "0.0.0-dev"
+version = "0.0.1"
 description = "QQ bot for managing Minecraft servers running in docker, and more"
 authors = ["xyqyear <xyqyear@gmail.com>"]
 license = "MIT"
