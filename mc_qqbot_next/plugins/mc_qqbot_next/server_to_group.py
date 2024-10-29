@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 
 from .bot import get_onebot_bot
 from .config import config
-from .db.crud import (
+from .db.crud.binding import (
     create_or_update_mc_player_info,
     create_qq_uuid_mapping_by_player_name,
     delete_qq_uuid_mapping,
