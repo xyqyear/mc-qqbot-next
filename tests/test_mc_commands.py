@@ -1,10 +1,7 @@
 from dataclasses import dataclass
 from typing import Literal
 
-import nonebot
 import pytest
-from nonebot.adapters.onebot.v11 import Adapter as Onebot11Adapter
-from nonebot.adapters.onebot.v11 import Bot as Onebot11Bot
 from nonebot.matcher import Matcher
 from nonebug import App
 
@@ -13,6 +10,7 @@ from .docker_mc_mocks import (
     MockMCInstance,
     mock_common_docker_mc_manager,
 )
+from .onebot_fake_send import bot_should_respond
 from .onebot_message_factory import create_group_message_event
 
 
@@ -23,7 +21,6 @@ class CommandTestCase:
     mock_response: str  # The mock response from the server
     matcher: type[Matcher]  # The command matcher to test
     requires_permission_check: bool = True
-    group_id: int = 321
     role: Literal["owner", "admin", "member"] = "admin"
 
 
@@ -38,7 +35,7 @@ async def run_command_test(app: App, test_case: CommandTestCase):
     mock_manager = MockDockerMCManager(
         instances=[
             MockMCInstance(
-                name="server1", send_command_rcon_response=test_case.mock_response
+                name="server1", send_command_response=test_case.mock_response
             )
         ]
     )
@@ -47,18 +44,9 @@ async def run_command_test(app: App, test_case: CommandTestCase):
         event = create_group_message_event(
             test_case.command,
             sender_id=123456,
-            group_id=test_case.group_id,
             role=test_case.role,
         )
-
-        async with app.test_matcher(test_case.matcher) as ctx:
-            adapter = nonebot.get_adapter(Onebot11Adapter)
-            bot = ctx.create_bot(base=Onebot11Bot, adapter=adapter)
-            ctx.receive_event(bot, event)
-            ctx.should_pass_permission(test_case.matcher)
-            ctx.should_pass_rule(test_case.matcher)
-            ctx.should_call_send(event, test_case.mock_response, result=None)
-            ctx.should_finished(test_case.matcher)
+        await bot_should_respond(app, test_case.matcher, event, test_case.mock_response)
 
         mock_instance = mock_manager.instances_dict["server1"]
         mock_instance.send_command_rcon.assert_awaited_once_with(test_case.mc_command)
@@ -105,6 +93,7 @@ async def test_banlist_command(app: App):
             mc_command="banlist",
             mock_response="Banned users:\n- user123\n- user456",
             matcher=banlist,
+            role="member",
             requires_permission_check=False,
         ),
     )
@@ -148,5 +137,7 @@ async def test_whitelist_commands(app: App):
             mc_command="whitelist list",
             mock_response="Whitelist:\n- user123\n- user456",
             matcher=whitelist_list,
+            role="member",
+            requires_permission_check=False,
         ),
     )

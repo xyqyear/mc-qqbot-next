@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
+from minecraft_docker_manager_lib.instance import LogType
+
 
 @dataclass
 class MockMCServerInfo:
@@ -22,21 +24,33 @@ class MockMCInstance:
     def __init__(
         self,
         name: str = "server1",
-        send_command_rcon_response: str = "User banned successfully.",
+        send_command_response: str = "User banned successfully.",
         list_players_response: list[str] = [],
         get_server_info_response: MockMCServerInfo = MockMCServerInfo(),
+        mocked_log_content: str = "mock log content",
         healthy_response: bool = True,
-        exists: bool = True,
-        created: bool = True,
-        running: bool = True,
+        exists_response: bool = True,
+        created_response: bool = True,
+        running_response: bool = True,
     ):
         self.name = name
+        get_server_info_response.name = name
+        self.mocked_log_content = mocked_log_content
+        self.pointer = 0
+
+        self.send_command_response = send_command_response
+
+        self.healthy_response = healthy_response
+        self.exists_response = exists_response
+        self.created_response = created_response
+        self.running_response = running_response
+        self.list_players_response = list_players_response
 
         # Mock methods
-        self.send_command_rcon = AsyncMock(return_value=send_command_rcon_response)
-        self.list_players = AsyncMock(return_value=list_players_response)
+        self.send_command_rcon = AsyncMock(side_effect=self._send_command)
+        self.list_players = AsyncMock(side_effect=self._list_players)
         self.get_server_info = AsyncMock(return_value=get_server_info_response)
-        self.healthy = AsyncMock(return_value=healthy_response)
+        self.healthy = AsyncMock(side_effect=self._healthy)
         self.get_name = MagicMock(return_value=self.name)
         self.get_project_path = MagicMock(return_value=Path(f"/mock/path/{self.name}"))
         self.get_compose_manager = MagicMock(return_value=MagicMock())
@@ -49,9 +63,7 @@ class MockMCInstance:
             return_value=Path(f"/mock/path/{self.name}/data/logs/latest.log")
         )
         self.get_log_file_end_pointer = AsyncMock(return_value=100)
-        self.get_logs_from_file = AsyncMock(
-            return_value={"content": "mock log content", "pointer": 100}
-        )
+        self.get_logs_from_file = AsyncMock(side_effect=self._get_logs_from_file)
         self.parse_player_messages_from_log = MagicMock(return_value=[])
         self.get_player_messages_from_log = AsyncMock(return_value=([], 100))
         self.get_logs_from_docker = AsyncMock(return_value="mock docker logs")
@@ -63,10 +75,41 @@ class MockMCInstance:
         self.start = AsyncMock()
         self.stop = AsyncMock()
         self.restart = AsyncMock()
-        self.exists = AsyncMock(return_value=exists)
-        self.created = AsyncMock(return_value=created)
-        self.running = AsyncMock(return_value=running)
+        self.exists = AsyncMock(side_effect=self._exists)
+        self.created = AsyncMock(side_effect=self._created)
+        self.running = AsyncMock(side_effect=self._running)
         self.wait_until_healthy = AsyncMock()
+
+    async def _send_command(self, *args, **kwargs):
+        if self.healthy_response:
+            return self.send_command_response
+        else:
+            raise Exception("Instance is not healthy")
+
+    async def _list_players(self):
+        if self.healthy_response:
+            return self.list_players_response
+        else:
+            raise Exception("Instance is not healthy")
+
+    async def _healthy(self):
+        return self.healthy_response
+
+    async def _exists(self):
+        return self.exists_response
+
+    async def _created(self):
+        return self.created_response
+
+    async def _running(self):
+        return self.running_response
+
+    def set_mocked_log_content(self, content: str):
+        self.mocked_log_content = content
+
+    async def _get_logs_from_file(self, log_pointer: int):
+        self.pointer += len(self.mocked_log_content)
+        return LogType(content=self.mocked_log_content, pointer=self.pointer)
 
 
 class MockDockerMCManager:

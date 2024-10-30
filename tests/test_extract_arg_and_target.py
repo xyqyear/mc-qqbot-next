@@ -10,22 +10,22 @@ from .onebot_message_factory import Message
 
 
 @pytest.mark.asyncio
-async def test_ban_command(app: App):
+async def test_extract_arg_and_target(app: App):
     from mc_qqbot_next.plugins.mc_qqbot_next.dependencies import extract_arg_and_target
 
     mock_manager = MockDockerMCManager(
         instances=[
             MockMCInstance(
-                name="server1", send_command_rcon_response="User banned successfully."
+                name="server1", send_command_response="User banned successfully."
             ),
             MockMCInstance(
-                name="server2", send_command_rcon_response="User banned successfully."
+                name="server2", send_command_response="User banned successfully."
             ),
             MockMCInstance(
-                name="ser", send_command_rcon_response="User banned successfully."
+                name="ser", send_command_response="User banned successfully."
             ),
             MockMCInstance(
-                name="excluded", send_command_rcon_response="User banned successfully."
+                name="excluded", send_command_response="User banned successfully."
             ),
         ],
     )
