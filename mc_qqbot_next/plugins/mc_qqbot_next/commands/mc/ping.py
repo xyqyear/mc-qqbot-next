@@ -2,7 +2,7 @@ from nonebot import on_command
 
 from ...docker import list_players_for_all_servers
 
-ping = on_command("ping", aliases={"list"})
+ping = on_command("ping", aliases={"list", "l"})
 
 
 @ping.handle()
