@@ -13,7 +13,7 @@ from .db.crud.binding import (
     delete_qq_uuid_mapping,
     get_qq_by_player_name,
 )
-from .docker import docker_mc_manager, send_message
+from .docker import get_instance, get_running_server_names, send_message
 from .mc import PlayerInfo, parse_player_uuid_and_name_from_log
 
 server_log_pointer_dict = dict[str, int]()
@@ -25,8 +25,8 @@ async def check_mc_logs():
     if bot is None:
         logger.trace("No onebot bot fount, skip checking mc logs")
         return
-    for server_name in await docker_mc_manager.get_running_server_names():
-        instance = docker_mc_manager.get_instance(server_name)
+    for server_name in await get_running_server_names():
+        instance = await get_instance(server_name)
         if server_name not in server_log_pointer_dict:
             server_log_pointer_dict[
                 server_name

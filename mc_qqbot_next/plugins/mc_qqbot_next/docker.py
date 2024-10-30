@@ -8,6 +8,48 @@ from .config import config
 docker_mc_manager = DockerMCManager(config.servers_root_path)
 
 
+async def get_running_server_names():
+    """
+    获取所有运行中的 Minecraft 服务器名称
+    会过滤掉 config.excluded_servers 中的服务器
+    """
+    running_servers = await docker_mc_manager.get_running_server_names()
+    return list(
+        filter(
+            lambda server_name: server_name not in config.excluded_servers,
+            running_servers,
+        )
+    )
+
+
+async def send_rcon_command(server_name: str, command: str):
+    """
+    向 Minecraft 服务器发送 RCON 命令
+    """
+    return await docker_mc_manager.get_instance(server_name).send_command_rcon(command)
+
+
+async def restart_server(server_name: str):
+    """
+    重启 Minecraft 服务器
+    """
+    return await docker_mc_manager.get_instance(server_name).restart()
+
+
+async def healthy(server_name: str):
+    """
+    检查 Minecraft 服务器是否健康
+    """
+    return await docker_mc_manager.get_instance(server_name).healthy()
+
+
+async def get_instance(server_name: str):
+    """
+    获取 Minecraft 服务器实例
+    """
+    return docker_mc_manager.get_instance(server_name)
+
+
 async def locate_server_name_with_prefix(prefix: str):
     """
     通过前缀查找匹配的服务器名称
@@ -27,7 +69,7 @@ async def locate_server_name_with_prefix(prefix: str):
         - locate_server_name('test') 返回 'test1'
         - locate_server_name('dev') 返回 None
     """
-    all_server_names = await docker_mc_manager.get_running_server_names()
+    all_server_names = await get_running_server_names()
     if prefix in all_server_names:
         return prefix
     for server_name in all_server_names:
@@ -53,7 +95,7 @@ async def list_players_for_all_servers():
             "minigames": None  # 获取玩家列表失败
         }
     """
-    running_servers = await docker_mc_manager.get_running_server_names()
+    running_servers = await get_running_server_names()
     running_servers = list(
         filter(
             lambda server_name: server_name not in config.excluded_servers,
@@ -140,7 +182,7 @@ async def send_message(
         list[str]: 发送失败的服务器名称列表
     """
     if target_server is None:
-        target_servers = await docker_mc_manager.get_running_server_names()
+        target_servers = await get_running_server_names()
     else:
         target_servers = [target_server]
 
