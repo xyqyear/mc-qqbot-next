@@ -51,7 +51,6 @@ async def actual_send_message(
     """
     if player_name is None:
         await say.finish('在任意服务器输入 "\\\\bind QQ号" 来绑定游戏账号')
-        return
     sending_message = f"*<{player_name}> {message}"
 
     await create_message_target(
