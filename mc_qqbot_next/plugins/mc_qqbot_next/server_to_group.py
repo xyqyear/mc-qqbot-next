@@ -3,6 +3,7 @@ import asyncio
 from minecraft_docker_manager_lib.instance import MCInstance, MCPlayerMessage
 from nonebot.adapters.onebot.v11.bot import Bot
 from nonebot.log import logger
+from pydantic import BaseModel
 from sqlalchemy.exc import IntegrityError
 
 from .bot import get_onebot_bot
@@ -13,10 +14,15 @@ from .db.crud.binding import (
     delete_qq_uuid_mapping,
     get_qq_by_player_name,
 )
+from .db.crud.message import create_message_target
 from .docker import get_instance, get_running_server_names, send_message
 from .mc import PlayerInfo, parse_player_uuid_and_name_from_log
 
 server_log_pointer_dict = dict[str, int]()
+
+
+class SendMsgResponse(BaseModel):
+    message_id: int
 
 
 async def check_mc_logs():
@@ -104,9 +110,14 @@ async def handle_send_command(
     player_name: str,
     message: str,
 ):
-    await bot.send_group_msg(
+    result = await bot.send_group_msg(
         group_id=config.group_id,
         message=f"[{server_name}] <{player_name}>: {message}",
+    )
+    send_msg_response = SendMsgResponse.model_validate(result)
+    await create_message_target(
+        message_id=send_msg_response.message_id,
+        target_server=server_name,
     )
 
 

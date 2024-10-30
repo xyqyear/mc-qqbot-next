@@ -1,11 +1,12 @@
 import re
 
 from nonebot.adapters import Event
-from nonebot.adapters.onebot.v11 import Message
+from nonebot.adapters.onebot.v11 import Message, MessageEvent
 from nonebot.params import CommandArg
 
 from .config import config
 from .db.crud.binding import get_player_name_by_qq_id
+from .db.crud.message import get_message_target_by_message_id
 from .docker import locate_server_name_with_prefix
 
 
@@ -62,3 +63,25 @@ async def get_player_name(event: Event) -> str | None:
     """
     sender_qq_id = event.get_user_id()
     return await get_player_name_by_qq_id(sender_qq_id)
+
+
+async def get_target_server_from_reply(event: MessageEvent) -> str | None:
+    """
+    从回复消息中提取目标服务器名称
+
+    Args:
+        event (MessageEvent): 回复消息事件对象
+
+    Returns:
+        str: 目标服务器名称
+    """
+    reply = event.reply
+    if reply is None:
+        return None
+
+    reply_message_id = reply.message_id
+    message_target = await get_message_target_by_message_id(reply_message_id)
+    if message_target is None:
+        return None
+
+    return message_target.target_server
