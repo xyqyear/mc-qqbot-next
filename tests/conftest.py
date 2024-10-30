@@ -1,19 +1,11 @@
-import os
-import shutil
-
 import nonebot
-import nonebot.config
 import pytest
-from nonebot.adapters.onebot.v11 import Adapter as OnebotAdapter
+from nonebot.adapters.onebot.v11 import Adapter as Onebot11Adapter
 
 
 @pytest.fixture(scope="session", autouse=True)
 def load_bot():
-    if os.path.exists("data_test"):
-        shutil.rmtree("data_test")
-
-    nonebot.init()
     driver = nonebot.get_driver()
-    driver.register_adapter(OnebotAdapter)
+    driver.register_adapter(Onebot11Adapter)
 
     nonebot.load_from_toml("pyproject.toml")
