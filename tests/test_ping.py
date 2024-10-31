@@ -7,7 +7,7 @@ from .docker_mc_mocks import (
     MockMCServerInfo,
     mock_common_docker_mc_manager,
 )
-from .onebot_fake_send import bot_should_respond
+from .onebot_fake_send import bot_receive_event
 from .onebot_message_factory import create_group_message_event
 
 
@@ -47,7 +47,7 @@ async def test_say_unbound_user(app: App):
             message_id=1,
             sender_id=123456,
         )
-        await bot_should_respond(
+        await bot_receive_event(
             app, ping, event, "没人: [server2], [server1], [server3]"
         )
 
@@ -61,7 +61,7 @@ async def test_say_unbound_user(app: App):
         mock_manager.instances_dict["server2"].list_players_response = ["player3"]
         mock_manager.instances_dict["server3"].healthy_response = False
 
-        await bot_should_respond(
+        await bot_receive_event(
             app,
             ping,
             event,

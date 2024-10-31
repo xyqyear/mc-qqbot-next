@@ -10,7 +10,7 @@ from .docker_mc_mocks import (
     MockMCInstance,
     mock_common_docker_mc_manager,
 )
-from .onebot_fake_send import bot_should_respond
+from .onebot_fake_send import bot_receive_event
 from .onebot_message_factory import create_group_message_event
 
 
@@ -46,7 +46,7 @@ async def run_command_test(app: App, test_case: CommandTestCase):
             sender_id=123456,
             role=test_case.role,
         )
-        await bot_should_respond(app, test_case.matcher, event, test_case.mock_response)
+        await bot_receive_event(app, test_case.matcher, event, test_case.mock_response)
 
         mock_instance = mock_manager.instances_dict["server1"]
         mock_instance.send_command_rcon.assert_awaited_once_with(test_case.mc_command)
