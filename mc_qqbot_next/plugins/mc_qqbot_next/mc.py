@@ -32,7 +32,7 @@ async def find_name_by_uuid(uuid: str, timeout: int = 5):
             timeout=ClientTimeout(total=timeout),
         ) as response:
             profile_data = await response.json()
-            if "errorMessage" in profile_data:
+            if profile_data is None or "errorMessage" in profile_data:
                 raise ValueError("Invalid UUID")
             profile = MinecraftProfile(**profile_data)
             return profile.name
