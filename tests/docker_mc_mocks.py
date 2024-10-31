@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
@@ -32,6 +33,7 @@ class MockMCInstance:
         exists_response: bool = True,
         created_response: bool = True,
         running_response: bool = True,
+        restart_time: int = 0,
     ):
         self.name = name
         get_server_info_response.name = name
@@ -45,6 +47,8 @@ class MockMCInstance:
         self.created_response = created_response
         self.running_response = running_response
         self.list_players_response = list_players_response
+
+        self.restart_time = restart_time
 
         # Mock methods
         self.send_command_rcon = AsyncMock(side_effect=self._send_command)
@@ -74,7 +78,7 @@ class MockMCInstance:
         self.down = AsyncMock()
         self.start = AsyncMock()
         self.stop = AsyncMock()
-        self.restart = AsyncMock()
+        self.restart = AsyncMock(side_effect=self._restart)
         self.exists = AsyncMock(side_effect=self._exists)
         self.created = AsyncMock(side_effect=self._created)
         self.running = AsyncMock(side_effect=self._running)
@@ -103,6 +107,15 @@ class MockMCInstance:
 
     async def _running(self):
         return self.running_response
+
+    async def _restart(self):
+        self.healthy_response = False
+
+        async def restart_task():
+            await asyncio.sleep(self.restart_time)
+            self.healthy_response = True
+
+        asyncio.create_task(restart_task())
 
     def set_mocked_log_content(self, content: str):
         self.mocked_log_content = content
