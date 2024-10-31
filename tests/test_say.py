@@ -109,7 +109,7 @@ async def test_reply_say(app: App):
             # if the replied message is in the database, the command should be executed
             # reply to a message sent from server
             mock_bot.send_group_msg.return_value = {"message_id": 100000}
-            await handle_send_command(mock_bot, "server1", "Notch", "hello")
+            await handle_send_command(mock_bot, "server1", "Notch", "hello")  # type: ignore
             event = create_group_message_event(
                 "hello2",
                 sender_id=123456,
