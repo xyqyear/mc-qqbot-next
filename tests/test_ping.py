@@ -19,7 +19,7 @@ async def test_say_unbound_user(app: App):
 
     await init_orm()
 
-    mock_manager = MockDockerMCManager(
+    mock_docker_mc_manager = MockDockerMCManager(
         instances=[
             MockMCInstance(
                 name="server1",
@@ -41,7 +41,7 @@ async def test_say_unbound_user(app: App):
             ),
         ]
     )
-    with mock_common_docker_mc_manager(mock_manager):
+    with mock_common_docker_mc_manager(mock_docker_mc_manager):
         event = create_group_message_event(
             "/list",
             message_id=1,
@@ -51,15 +51,17 @@ async def test_say_unbound_user(app: App):
             app, ping, event, "没人: [server2], [server1], [server3]"
         )
 
-        for instance in mock_manager.instances_dict.values():
+        for instance in mock_docker_mc_manager.instances_dict.values():
             instance.list_players.assert_awaited_once()
 
-        mock_manager.instances_dict["server1"].list_players_response = [
+        mock_docker_mc_manager.instances_dict["server1"].list_players_response = [
             "player1",
             "player2",
         ]
-        mock_manager.instances_dict["server2"].list_players_response = ["player3"]
-        mock_manager.instances_dict["server3"].healthy_response = False
+        mock_docker_mc_manager.instances_dict["server2"].list_players_response = [
+            "player3"
+        ]
+        mock_docker_mc_manager.instances_dict["server3"].healthy_response = False
 
         await bot_receive_event(
             app,

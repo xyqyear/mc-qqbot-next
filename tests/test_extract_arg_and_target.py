@@ -13,7 +13,7 @@ from .onebot_message_factory import Message
 async def test_extract_arg_and_target(app: App):
     from mc_qqbot_next.plugins.mc_qqbot_next.dependencies import extract_arg_and_target
 
-    mock_manager = MockDockerMCManager(
+    mock_docker_mc_manager = MockDockerMCManager(
         instances=[
             MockMCInstance(
                 name="server1", send_command_response="User banned successfully."
@@ -30,7 +30,7 @@ async def test_extract_arg_and_target(app: App):
         ],
     )
 
-    with mock_common_docker_mc_manager(mock_manager):
+    with mock_common_docker_mc_manager(mock_docker_mc_manager):
 
         async def run_test(message_str, expected_target):
             arg_and_target = await extract_arg_and_target(Message(message_str))

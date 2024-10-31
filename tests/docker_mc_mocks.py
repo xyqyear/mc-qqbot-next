@@ -148,11 +148,56 @@ class MockDockerMCManager:
             if instance.running.return_value
         ]
 
+    def assert_rcon_sent_to_server(self, server_name: str, command: str):
+        self.instances_dict[server_name].send_command_rcon.assert_awaited_once_with(
+            command
+        )
+
+    def assert_rcon_not_sent_to_server(self, server_name: str):
+        self.instances_dict[server_name].send_command_rcon.assert_not_called()
+
+    def assert_rcon_not_sent_to_any_server(self):
+        for instance in self.instances_dict.values():
+            self.assert_rcon_not_sent_to_server(instance.name)
+
+    def reset_mocks(self):
+        for instance in self.instances_dict.values():
+            instance.send_command_rcon.reset_mock()
+            instance.list_players.reset_mock()
+            instance.get_server_info.reset_mock()
+            instance.healthy.reset_mock()
+            instance.get_log_file_end_pointer.reset_mock()
+            instance.get_logs_from_file.reset_mock()
+            instance.parse_player_messages_from_log.reset_mock()
+            instance.get_player_messages_from_log.reset_mock()
+            instance.get_logs_from_docker.reset_mock()
+            instance.create.reset_mock()
+            instance.update_compose_file.reset_mock()
+            instance.remove.reset_mock()
+            instance.up.reset_mock()
+            instance.down.reset_mock()
+            instance.start.reset_mock()
+            instance.stop.reset_mock()
+            instance.restart.reset_mock()
+            instance.exists.reset_mock()
+            instance.created.reset_mock()
+            instance.running.reset_mock()
+            instance.wait_until_healthy.reset_mock()
+
+        self.get_running_server_names.reset_mock()
+        self.get_instance.reset_mock()
+        self.get_all_server_names.reset_mock()
+        self.get_all_instances.reset_mock()
+        self.get_all_server_compose_obj.reset_mock()
+        self.get_all_server_compose_paths.reset_mock()
+        self.get_all_server_info.reset_mock()
+        self.parse_server_name_from_compose_obj.reset_mock()
+
 
 @contextmanager
-def mock_common_docker_mc_manager(mock_manager: MockDockerMCManager):
+def mock_common_docker_mc_manager(mock_docker_mc_manager: MockDockerMCManager):
     with patch(
         "mc_qqbot_next.plugins.mc_qqbot_next.docker.docker_mc_manager",
-        new=mock_manager,
+        new=mock_docker_mc_manager,
     ):
         yield

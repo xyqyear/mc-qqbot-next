@@ -32,7 +32,7 @@ async def run_command_test(app: App, test_case: CommandTestCase):
 
         await basic_permission_check(app, test_case.matcher)
 
-    mock_manager = MockDockerMCManager(
+    mock_docker_mc_manager = MockDockerMCManager(
         instances=[
             MockMCInstance(
                 name="server1", send_command_response=test_case.mock_response
@@ -40,16 +40,16 @@ async def run_command_test(app: App, test_case: CommandTestCase):
         ]
     )
 
-    with mock_common_docker_mc_manager(mock_manager):
+    with mock_common_docker_mc_manager(mock_docker_mc_manager):
         event = create_group_message_event(
             test_case.command,
             sender_id=123456,
             role=test_case.role,
         )
         await bot_receive_event(app, test_case.matcher, event, test_case.mock_response)
-
-        mock_instance = mock_manager.instances_dict["server1"]
-        mock_instance.send_command_rcon.assert_awaited_once_with(test_case.mc_command)
+        mock_docker_mc_manager.assert_rcon_sent_to_server(
+            "server1", test_case.mc_command
+        )
 
 
 @pytest.mark.asyncio
