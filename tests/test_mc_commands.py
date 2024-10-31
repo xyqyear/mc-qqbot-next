@@ -10,8 +10,8 @@ from .docker_mc_mocks import (
     MockMCInstance,
     mock_common_docker_mc_manager,
 )
-from .onebot_fake_send import bot_receive_event
 from .onebot_message_factory import create_group_message_event
+from .onebot_mock_send import bot_receive_event
 
 
 @dataclass

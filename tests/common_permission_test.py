@@ -4,8 +4,8 @@ from nonebot.adapters.onebot.v11 import Bot as Onebot11Bot
 from nonebot.matcher import Matcher
 from nonebug import App
 
-from .onebot_fake_send import bot_receive_event
 from .onebot_message_factory import create_group_message_event
+from .onebot_mock_send import bot_receive_event
 from .onebot_utils import get_one_superuser
 
 
