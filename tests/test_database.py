@@ -106,7 +106,3 @@ async def test_all():
 
     await delete_qq_uuid_mapping("123456")
     await delete_mc_player_info("069a79f444e94726a5befca90e38aaf5")
-
-
-def test_true():
-    assert True

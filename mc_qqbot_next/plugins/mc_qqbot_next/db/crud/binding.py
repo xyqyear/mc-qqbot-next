@@ -7,11 +7,8 @@ from . import get_session_scope
 
 async def get_player_name_by_qq_id(qq_id: str) -> str | None:
     async with get_session_scope() as session:
-        query = (
-            select(MCPlayerInfo.name)
-            .select_from(QQUUIDMapping)
-            .join(QQUUIDMapping.mc_player_info)
-            .where(QQUUIDMapping.qq_id == qq_id)
+        query = select(MCPlayerInfo.name).where(
+            MCPlayerInfo.qq_uuid_mapping.has(QQUUIDMapping.qq_id == qq_id)
         )
         return await session.scalar(query)
 
@@ -20,11 +17,8 @@ async def get_qq_by_player_name(
     player_name: str,
 ) -> str | None:
     async with get_session_scope() as session:
-        query = (
-            select(QQUUIDMapping.qq_id)
-            .select_from(QQUUIDMapping)
-            .join(QQUUIDMapping.mc_player_info)
-            .where(MCPlayerInfo.name == player_name)
+        query = select(QQUUIDMapping.qq_id).where(
+            QQUUIDMapping.mc_player_info.has(MCPlayerInfo.name == player_name)
         )
         return await session.scalar(query)
 
@@ -47,10 +41,8 @@ async def create_qq_uuid_mapping_by_player_name(qq_id: str, name: str) -> None:
         asyncio.TimeoutError: If the request to Mojang API times out.
     """
     async with get_session_scope() as session:
-        mc_player_info_query_result = await session.execute(
-            select(MCPlayerInfo).where(MCPlayerInfo.name == name)
-        )
-        mc_player_info = mc_player_info_query_result.scalar()
+        query = select(MCPlayerInfo).where(MCPlayerInfo.name == name)
+        mc_player_info = await session.scalar(query)
         if mc_player_info:
             player_uuid = mc_player_info.uuid
         else:
