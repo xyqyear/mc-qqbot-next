@@ -2,6 +2,7 @@ import re
 
 from nonebot.adapters import Event
 from nonebot.adapters.onebot.v11 import Message, MessageEvent
+from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 
 from .config import config
@@ -65,7 +66,7 @@ async def get_player_name(event: Event) -> str | None:
     return await get_player_name_by_qq_id(sender_qq_id)
 
 
-async def get_target_server_from_reply(event: MessageEvent) -> str | None:
+async def get_target_server_from_reply(event: MessageEvent, matcher: Matcher) -> str:
     """
     从回复消息中提取目标服务器名称
 
@@ -77,11 +78,14 @@ async def get_target_server_from_reply(event: MessageEvent) -> str | None:
     """
     reply = event.reply
     if reply is None:
-        return None
+        matcher.skip()
 
     reply_message_id = reply.message_id
     message_target = await get_message_target_by_message_id(reply_message_id)
     if message_target is None:
-        return None
+        matcher.skip()
+
+    if message_target.target_server is None:
+        matcher.skip()
 
     return message_target.target_server
