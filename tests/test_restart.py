@@ -30,7 +30,7 @@ async def test_restart(app: App):
             "/restart",
             role="admin",
         )
-        config.restart_wait_seconds = 60
+        config.mc_restart_wait_seconds = 60
         async with app.test_matcher(restart) as ctx:
             adapter = nonebot.get_adapter(Onebot11Adapter)
             bot = ctx.create_bot(base=Onebot11Bot, adapter=adapter)
@@ -43,7 +43,7 @@ async def test_restart(app: App):
         instance.restart.assert_awaited_once()
         instance.restart.reset_mock()
 
-        config.restart_wait_seconds = 1
+        config.mc_restart_wait_seconds = 1
         async with app.test_matcher(restart) as ctx:
             adapter = nonebot.get_adapter(Onebot11Adapter)
             bot = ctx.create_bot(base=Onebot11Bot, adapter=adapter)

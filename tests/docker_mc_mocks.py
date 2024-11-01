@@ -158,7 +158,7 @@ class MockDockerMCManager:
         return [
             name
             for name, instance in self.instances_dict.items()
-            if instance.running.return_value
+            if instance.running_response
         ]
 
     def assert_rcon_sent_to_server(self, server_name: str, command: str):

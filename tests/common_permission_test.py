@@ -37,7 +37,7 @@ async def basic_permission_check(app: App, matcher: type[Matcher]):
     event = create_group_message_event(
         "/ban user123 /server1",
         sender_id=123456,
-        group_id=config.group_id,
+        group_id=config.mc_group_id,
     )
     async with app.test_matcher(matcher) as ctx:
         adapter = nonebot.get_adapter(Onebot11Adapter)

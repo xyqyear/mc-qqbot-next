@@ -111,7 +111,7 @@ async def handle_send_command(
     message: str,
 ):
     result = await bot.send_group_msg(
-        group_id=config.group_id,
+        group_id=config.mc_group_id,
         message=f"[{server_name}] <{player_name}>: {message}",
     )
     send_msg_response = SendMsgResponse.model_validate(result)

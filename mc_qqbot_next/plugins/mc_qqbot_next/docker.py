@@ -5,7 +5,16 @@ from minecraft_docker_manager_lib.manager import DockerMCManager
 
 from .config import config
 
-docker_mc_manager = DockerMCManager(config.servers_root_path)
+docker_mc_manager = DockerMCManager(config.mc_servers_root_path)
+
+
+async def get_first_running_server_name():
+    """
+    获取第一个运行中的 Minecraft 服务器名称
+    会过滤掉 config.excluded_servers 中的服务器
+    """
+    running_servers = await get_running_server_names()
+    return running_servers[0] if running_servers else None
 
 
 async def get_running_server_names():
@@ -16,7 +25,7 @@ async def get_running_server_names():
     running_servers = await docker_mc_manager.get_running_server_names()
     return list(
         filter(
-            lambda server_name: server_name not in config.excluded_servers,
+            lambda server_name: server_name not in config.mc_excluded_servers,
             running_servers,
         )
     )
@@ -98,7 +107,7 @@ async def list_players_for_all_servers():
     running_servers = await get_running_server_names()
     running_servers = list(
         filter(
-            lambda server_name: server_name not in config.excluded_servers,
+            lambda server_name: server_name not in config.mc_excluded_servers,
             running_servers,
         )
     )

@@ -27,11 +27,11 @@ async def handle_restart(
     await restart.send(f"[{target_server}] 正在重启")
     before_time = time.perf_counter()
     # we only wait for 10 minutes for the server to be healthy
-    while time.perf_counter() - before_time < config.restart_wait_seconds:
+    while time.perf_counter() - before_time < config.mc_restart_wait_seconds:
         if await healthy(target_server):
             await restart.finish(f"[{target_server}] 重启完成")
             return
         await asyncio.sleep(1)
     await restart.finish(
-        f"[{target_server}] 坏了，好像过了{config.restart_wait_seconds//60}分钟了还没重启好"
+        f"[{target_server}] 坏了，好像过了{config.mc_restart_wait_seconds//60}分钟了还没重启好"
     )

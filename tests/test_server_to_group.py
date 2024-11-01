@@ -192,5 +192,5 @@ async def test_handle_send_command():
             mock_bot.send_group_msg.return_value = {"message_id": 123456}
             await check_mc_logs()
             mock_bot.send_group_msg.assert_awaited_once_with(
-                group_id=config.group_id, message="[server1] <Notch>: hello"
+                group_id=config.mc_group_id, message="[server1] <Notch>: hello"
             )

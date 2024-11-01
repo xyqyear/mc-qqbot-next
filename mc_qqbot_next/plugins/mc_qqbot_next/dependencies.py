@@ -8,7 +8,7 @@ from nonebot.params import CommandArg
 from .config import config
 from .db.crud.binding import get_player_name_by_qq_id
 from .db.crud.message import get_message_target_by_message_id
-from .docker import locate_server_name_with_prefix
+from .docker import get_first_running_server_name, locate_server_name_with_prefix
 
 
 async def extract_content_and_target_from_str(command: str) -> tuple[str, str | None]:
@@ -24,7 +24,9 @@ async def extract_content_and_target_from_str(command: str) -> tuple[str, str | 
     return command, None
 
 
-async def extract_arg_and_target(msg: Message = CommandArg()) -> tuple[str, str]:
+async def extract_arg_and_target(
+    matcher: Matcher, msg: Message = CommandArg()
+) -> tuple[str, str]:
     """
     从消息中提取命令内容和目标服务器名称
 
@@ -48,7 +50,15 @@ async def extract_arg_and_target(msg: Message = CommandArg()) -> tuple[str, str]
     """
     text = msg.extract_plain_text()
     command_content, target_server = await extract_content_and_target_from_str(text)
-    return command_content, (target_server if target_server else config.default_server)
+    if target_server is None:
+        if config.mc_default_server is None:
+            first_running_server = await get_first_running_server_name()
+            if first_running_server is None:
+                await matcher.finish("没有运行中的服务器")
+            target_server = first_running_server
+        else:
+            target_server = config.mc_default_server
+    return command_content, target_server
 
 
 async def get_player_name(event: Event) -> str | None:

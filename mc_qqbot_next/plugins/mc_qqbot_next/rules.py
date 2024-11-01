@@ -4,7 +4,7 @@ from .config import config
 
 
 async def is_from_configured_group(event: GroupMessageEvent) -> bool:
-    return event.group_id == config.group_id
+    return event.group_id == config.mc_group_id
 
 
 async def has_reply(event: GroupMessageEvent) -> bool:
