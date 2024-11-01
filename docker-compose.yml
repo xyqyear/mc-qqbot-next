@@ -1,0 +1,17 @@
+services:
+  bot:
+    build: .  
+    image: ghcr.io/xyqyear/mc-qqbot-next:latest
+    environment:
+      SUPERUSERS: '["215908558"]'
+      MC_EXCLUDED_SERVERS: "[]"
+      MC_SERVERS_ROOT_PATH: "/root/docker-data/mc-testing"
+      MC_DEFAULT_SERVER: "server1"
+      MC_GROUP_ID: "762157470"
+    ports:
+      - 8080:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data:/data
+      - /root/docker-data/mc-testing
+    # command: ["sh"]
