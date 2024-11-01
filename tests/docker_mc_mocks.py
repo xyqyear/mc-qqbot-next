@@ -27,7 +27,8 @@ class MockMCInstance:
         name: str = "server1",
         send_command_response: str = "User banned successfully.",
         list_players_response: list[str] = [],
-        get_server_info_response: MockMCServerInfo = MockMCServerInfo(),
+        game_port: int = 25565,
+        get_server_info_response: MockMCServerInfo | None = None,
         mocked_log_content: str = "mock log content",
         healthy_response: bool = True,
         exists_response: bool = True,
@@ -36,7 +37,10 @@ class MockMCInstance:
         restart_time: int = 0,
     ):
         self.name = name
+        if get_server_info_response is None:
+            get_server_info_response = MockMCServerInfo()
         get_server_info_response.name = name
+        get_server_info_response.game_port = game_port
         self.mocked_log_content = mocked_log_content
         self.pointer = 0
 
@@ -151,7 +155,7 @@ class MockDockerMCManager:
         )
 
     def _get_instance(self, server_name: str) -> MockMCInstance:
-        return self.instances_dict.get(server_name, MockMCInstance(name=server_name))
+        return self.instances_dict[server_name]
 
     def _get_running_server_names(self) -> list[str]:
         # accessing return_value to avoid interference with tests

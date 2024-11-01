@@ -4,7 +4,6 @@ from nonebug import App
 from .docker_mc_mocks import (
     MockDockerMCManager,
     MockMCInstance,
-    MockMCServerInfo,
     mock_common_docker_mc_manager,
 )
 from .onebot_message_factory import create_group_message_event
@@ -23,21 +22,15 @@ async def test_ping(app: App):
         instances=[
             MockMCInstance(
                 name="server1",
-                get_server_info_response=MockMCServerInfo(
-                    game_port=25566,
-                ),
+                game_port=25566,
             ),
             MockMCInstance(
                 name="server2",
-                get_server_info_response=MockMCServerInfo(
-                    game_port=25565,
-                ),
+                game_port=25565,
             ),
             MockMCInstance(
                 name="server3",
-                get_server_info_response=MockMCServerInfo(
-                    game_port=25567,
-                ),
+                game_port=25567,
             ),
         ]
     )
