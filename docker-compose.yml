@@ -4,7 +4,7 @@ services:
     image: ghcr.io/xyqyear/mc-qqbot-next:latest
     environment:
       TZ: "Asia/Shanghai"
-      MC_EXCLUDED_SERVERS: "[]"
+      MC_EXCLUDED_SERVERS: '[]'
       MC_SERVERS_ROOT_PATH: "/root/docker-data/mc-testing"
       MC_DEFAULT_SERVER: "server1"
       MC_GROUP_ID: "762157470"
