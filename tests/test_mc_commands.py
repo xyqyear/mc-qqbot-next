@@ -46,7 +46,9 @@ async def run_command_test(app: App, test_case: CommandTestCase):
             sender_id=123456,
             role=test_case.role,
         )
-        await bot_receive_event(app, test_case.matcher, event, test_case.mock_response)
+        await bot_receive_event(
+            app, test_case.matcher, event, f"[server1] {test_case.mock_response}"
+        )
         mock_docker_mc_manager.assert_rcon_sent_to_server(
             "server1", test_case.mc_command
         )

@@ -52,7 +52,10 @@ async def send_rcon_command(server_name: str, command: str):
     """
     向 Minecraft 服务器发送 RCON 命令
     """
-    return await docker_mc_manager.get_instance(server_name).send_command_rcon(command)
+    result = await docker_mc_manager.get_instance(server_name).send_command_rcon(
+        command
+    )
+    return f"[{server_name}] {result}"
 
 
 async def restart_server(server_name: str):

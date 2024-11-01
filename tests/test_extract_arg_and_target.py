@@ -33,13 +33,13 @@ async def test_extract_arg_and_target(app: App):
     with mock_common_docker_mc_manager(mock_docker_mc_manager):
 
         async def run_test(message_str, expected_target):
+            excepted_player, expected_server = expected_target
             await bot_receive_event(
                 app,
                 ban,
                 create_group_message_event(message_str, role="admin"),
-                send_command_response,
+                f"[{expected_server}] {send_command_response}",
             )
-            excepted_player, expected_server = expected_target
             mock_docker_mc_manager.assert_rcon_sent_to_server(
                 expected_server, f"ban {excepted_player}"
             )
@@ -86,13 +86,13 @@ async def test_extract_arg_and_target_no_default_server(app: App):
     with mock_common_docker_mc_manager(mock_docker_mc_manager):
 
         async def run_test(message_str, expected_target):
+            excepted_player, expected_server = expected_target
             await bot_receive_event(
                 app,
                 ban,
                 create_group_message_event(message_str, role="admin"),
-                send_command_response,
+                f"[{expected_server}] {send_command_response}",
             )
-            excepted_player, expected_server = expected_target
             mock_docker_mc_manager.assert_rcon_sent_to_server(
                 expected_server, f"ban {excepted_player}"
             )
