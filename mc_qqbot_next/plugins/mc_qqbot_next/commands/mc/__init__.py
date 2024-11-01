@@ -1,10 +1,21 @@
 from . import (
-    ban,  # noqa F401
-    banlist,  # noqa F401
-    ping,  # noqa F401
-    reply_say,  # noqa F401
-    restart,  # noqa F401
-    say,  # noqa F401
-    unban,  # noqa F401
-    whitelist,  # noqa F401
+    ban,
+    banlist,
+    ping,
+    reply_say,
+    restart,
+    say,
+    unban,
+    whitelist,
 )
+
+__all__ = [
+    "ban",
+    "banlist",
+    "ping",
+    "reply_say",
+    "restart",
+    "say",
+    "unban",
+    "whitelist",
+]
