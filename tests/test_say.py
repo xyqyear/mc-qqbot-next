@@ -1,3 +1,6 @@
+import asyncio
+import time
+
 import pytest
 from nonebug import App
 
@@ -77,6 +80,9 @@ async def test_reply_say(app: App):
         create_qq_uuid_mapping_by_player_name,
         delete_qq_uuid_mapping,
     )
+    from mc_qqbot_next.plugins.mc_qqbot_next.db.crud.message import (
+        get_message_target_by_message_id,
+    )
     from mc_qqbot_next.plugins.mc_qqbot_next.server_to_group import (
         handle_send_command,
     )
@@ -108,8 +114,18 @@ async def test_reply_say(app: App):
 
             # if the replied message is in the database, the command should be executed
             # reply to a message sent from server
+
+            # await 2 seconds to make sure the timestamp in the db is correct.
+            await asyncio.sleep(2)
             mock_bot.send_group_msg.return_value = {"message_id": 100000}
             await handle_send_command(mock_bot, "server1", "Notch", "hello")  # type: ignore
+            # verify the message in db
+            saved_message_target = await get_message_target_by_message_id(100000)
+            assert saved_message_target is not None
+            assert saved_message_target.target_server == "server1"
+            assert saved_message_target.target_player is None
+            assert abs(saved_message_target.created_at - time.time()) <= 1
+
             event = create_group_message_event(
                 "hello2",
                 sender_id=123456,

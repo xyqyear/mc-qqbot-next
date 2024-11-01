@@ -1,3 +1,5 @@
+import time
+
 from nonebot_plugin_orm import Model
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -26,3 +28,4 @@ class MessageTarget(Model):
     message_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=False)
     target_server: Mapped[str | None] = mapped_column(default=None)
     target_player: Mapped[str | None] = mapped_column(default=None)
+    created_at: Mapped[int] = mapped_column(insert_default=lambda: int(time.time()))
