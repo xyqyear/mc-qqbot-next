@@ -18,9 +18,9 @@ async def extract_content_and_target_from_str(command: str) -> tuple[str, str | 
     """
     见 extract_content_and_target
     """
-    match = re.search(r"\s+/(\S+)$", command)
+    match = re.search(r"\s*/(\S+)$", command)
     if match:
-        command_content = command[: match.start()].rstrip()
+        command_content = command[: match.start()]
         potential_target = match.group(1)
         target_server = await locate_server_name_with_prefix(potential_target)
         return command_content, target_server
