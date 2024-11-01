@@ -6,6 +6,7 @@ from nonebot.params import Depends
 from ...db.crud.message import create_message_target
 from ...dependencies import extract_arg_and_target, get_player_name
 from ...docker import send_message
+from ...log import logger
 from ...rules import is_from_configured_group
 
 say = on_command(
@@ -57,7 +58,7 @@ async def actual_send_message(
         message_id=message_id,
         target_server=target_server,
     )
-
+    logger.info(f"Trying to send {sending_message} to {target_server}")
     failed_servers = await send_message(sending_message, target_server)
     if failed_servers:
         await matcher.finish(f"发送失败：{', '.join(failed_servers)}")

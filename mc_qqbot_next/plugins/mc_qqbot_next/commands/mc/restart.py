@@ -8,6 +8,7 @@ from nonebot.permission import SUPERUSER, Permission
 from ...config import config
 from ...dependencies import extract_arg_and_target
 from ...docker import healthy, restart_server
+from ...log import logger
 from ...permission import group_admin_or_owner
 from ...rules import is_from_configured_group
 
@@ -23,6 +24,7 @@ async def handle_restart(
     arg_and_target: tuple[str, str] = Depends(extract_arg_and_target),
 ):
     _, target_server = arg_and_target
+    logger.info(f"Trying to restart {target_server}")
     await restart_server(target_server)
     await restart.send(f"[{target_server}] 正在重启")
     before_time = time.perf_counter()
@@ -32,6 +34,9 @@ async def handle_restart(
             await restart.finish(f"[{target_server}] 重启完成")
             return
         await asyncio.sleep(1)
+    logger.info(
+        f"Restarting {target_server} timeout after {config.mc_restart_wait_seconds} seconds"
+    )
     await restart.finish(
         f"[{target_server}] 坏了，好像过了{config.mc_restart_wait_seconds//60}分钟了还没重启好"
     )

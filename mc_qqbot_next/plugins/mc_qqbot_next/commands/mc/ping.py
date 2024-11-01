@@ -1,6 +1,7 @@
 from nonebot import on_command
 
 from ...docker import list_players_for_all_servers
+from ...log import logger
 
 ping = on_command("ping", aliases={"list", "l"})
 
@@ -19,6 +20,7 @@ async def handle_ping():
     ---
     """
     servers_player_listing = await list_players_for_all_servers()
+    logger.debug(f"Servers player listing: {servers_player_listing}")
 
     servers_with_players = []
     servers_without_players = []

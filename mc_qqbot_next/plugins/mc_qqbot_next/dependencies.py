@@ -12,6 +12,7 @@ from .docker import (
     get_running_server_name_with_lowest_port,
     locate_server_name_with_prefix,
 )
+from .log import logger
 
 
 async def extract_content_and_target_from_str(command: str) -> tuple[str, str | None]:
@@ -55,6 +56,9 @@ async def extract_arg_and_target(
     command_content, target_server = await extract_content_and_target_from_str(text)
     if target_server is None:
         if config.mc_default_server is None:
+            logger.info(
+                "No default server specified, trying to get the first running server"
+            )
             first_running_server = await get_running_server_name_with_lowest_port()
             if first_running_server is None:
                 await matcher.finish("没有运行中的服务器")

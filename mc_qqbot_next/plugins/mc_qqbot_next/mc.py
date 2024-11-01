@@ -6,6 +6,8 @@ import aiohttp
 from aiohttp import ClientTimeout
 from pydantic import BaseModel
 
+from .log import logger
+
 
 class TextureProperty(BaseModel):
     name: str
@@ -35,6 +37,7 @@ async def find_name_by_uuid(uuid: str, timeout: int = 5):
             if profile_data is None or "errorMessage" in profile_data:
                 raise ValueError("Invalid UUID")
             profile = MinecraftProfile(**profile_data)
+            logger.debug(f"Got name for {profile.id} from Mojang API: {profile.name}")
             return profile.name
 
 
@@ -59,6 +62,7 @@ async def find_uuid_by_name(name: str, timeout: int = 5):
             if "errorMessage" in profile_data:
                 raise ValueError("Invalid Name")
             profile = MinecraftIDName(**profile_data)
+            logger.debug(f"Got UUID for {profile.name} from Mojang API: {profile.id}")
             return profile.id
 
 

@@ -4,6 +4,7 @@ from typing import Literal
 from minecraft_docker_manager_lib.manager import DockerMCManager
 
 from .config import config
+from .log import logger
 
 docker_mc_manager = DockerMCManager(config.mc_servers_root_path)
 
@@ -52,6 +53,7 @@ async def send_rcon_command(server_name: str, command: str):
     """
     向 Minecraft 服务器发送 RCON 命令
     """
+    logger.info(f"Sending RCON command to {server_name}: {command}")
     result = await docker_mc_manager.get_instance(server_name).send_command_rcon(
         command
     )
@@ -62,6 +64,7 @@ async def restart_server(server_name: str):
     """
     重启 Minecraft 服务器
     """
+    logger.info(f"Restarting {server_name}")
     return await docker_mc_manager.get_instance(server_name).restart()
 
 
@@ -69,6 +72,7 @@ async def healthy(server_name: str):
     """
     检查 Minecraft 服务器是否健康
     """
+    logger.trace(f"Checking health of {server_name}")
     return await docker_mc_manager.get_instance(server_name).healthy()
 
 
@@ -76,6 +80,7 @@ async def get_instance(server_name: str):
     """
     获取 Minecraft 服务器实例
     """
+    logger.trace(f"Getting instance of {server_name}")
     return docker_mc_manager.get_instance(server_name)
 
 
@@ -98,12 +103,16 @@ async def locate_server_name_with_prefix(prefix: str):
         - locate_server_name('test') 返回 'test1'
         - locate_server_name('dev') 返回 None
     """
+    logger.debug(f"Locating server name with prefix: {prefix}")
     all_server_names = await get_port_sorted_running_server_names()
     if prefix in all_server_names:
+        logger.debug(f"Found exact match: {prefix}")
         return prefix
     for server_name in all_server_names:
         if server_name.startswith(prefix):
+            logger.debug(f"Found prefix match: {server_name}")
             return server_name
+    logger.debug("No match found")
     return None
 
 
@@ -204,6 +213,7 @@ async def send_message(
     if target_player is None:
         target_player = "@a"
 
+    logger.info(f"Sending message to {target_player} in {target_servers}")
     tasks = [
         tell_raw(message, server_name, target_player, color)
         for server_name in target_servers

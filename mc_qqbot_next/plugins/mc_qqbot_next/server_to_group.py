@@ -2,7 +2,6 @@ import asyncio
 
 from minecraft_docker_manager_lib.instance import MCInstance, MCPlayerMessage
 from nonebot.adapters.onebot.v11.bot import Bot
-from nonebot.log import logger
 from pydantic import BaseModel
 from sqlalchemy.exc import IntegrityError
 
@@ -16,6 +15,7 @@ from .db.crud.binding import (
 )
 from .db.crud.message import create_message_target
 from .docker import get_instance, get_running_server_names, send_message
+from .log import logger
 from .mc import PlayerInfo, parse_player_uuid_and_name_from_log
 
 server_log_pointer_dict = dict[str, int]()
@@ -71,6 +71,9 @@ async def handle_player_messages(
         for startswith in startswith_candidate:
             if player_message.message.startswith(startswith):
                 command = player_message.message[len(startswith) :]
+                logger.debug(
+                    f"Received command from {player_message.player} in {server_name}: {command}"
+                )
                 await handle_command(
                     bot=bot,
                     server_name=server_name,
@@ -90,12 +93,14 @@ async def handle_command(
     if command.startswith("bind ") or command == "bind":
         arg = command[len("bind") :]
         arg = arg.strip()
+        logger.info(f"Received bind command from {player_name} in {server_name}: {arg}")
         await handle_bind_command(
             server_name=server_name,
             player_name=player_name,
             arg=arg,
         )
     else:
+        logger.info(f"Player {player_name} in {server_name} sent message: {command}")
         await handle_send_command(
             bot=bot,
             server_name=server_name,
@@ -144,12 +149,14 @@ async def handle_bind_command(
         case "get":
             qq_id = await get_qq_by_player_name(player_name)
             if qq_id is None:
+                logger.info(f"Player {player_name} has not binded any QQ")
                 await send_message(
                     "未绑定QQ号",
                     target_server=server_name,
                     target_player=player_name,
                 )
             else:
+                logger.info(f"Player {player_name} has binded QQ: {qq_id}")
                 await send_message(
                     f"已绑定QQ号：{qq_id}",
                     target_server=server_name,
@@ -158,38 +165,42 @@ async def handle_bind_command(
         case "remove":
             qq_id = await get_qq_by_player_name(player_name)
             if qq_id is None:
+                logger.info(f"Player {player_name} has not binded any QQ")
                 await send_message(
                     "未绑定QQ号",
                     target_server=server_name,
                     target_player=player_name,
                 )
             else:
+                logger.info(f"Player {player_name} removed binded QQ: {qq_id}")
                 await delete_qq_uuid_mapping(qq_id)
-            await send_message(
-                f"解绑 {qq_id} 成功",
-                target_server=server_name,
-                target_player=player_name,
-            )
+                await send_message(
+                    f"解绑 {qq_id} 成功",
+                    target_server=server_name,
+                    target_player=player_name,
+                )
         case _ if arg.isdigit() and 5 <= len(arg) <= 12:
             try:
                 await create_qq_uuid_mapping_by_player_name(
                     qq_id=arg,
                     name=player_name,
                 )
-            except IntegrityError as e:
-                logger.info(e)
+                logger.info(f"Player {player_name} binded QQ: {arg}")
+                await send_message(
+                    "绑定成功",
+                    target_server=server_name,
+                    target_player=player_name,
+                )
+            except IntegrityError:
+                logger.info(f"Player {player_name} or QQ {arg} has already binded")
                 await send_message(
                     "该QQ或游戏账号已有绑定",
                     target_server=server_name,
                     target_player=player_name,
                 )
 
-            await send_message(
-                "绑定成功",
-                target_server=server_name,
-                target_player=player_name,
-            )
         case _:
+            logger.info(f"Invalid QQ number: {arg}")
             await send_message(
                 "无效QQ号",
                 target_server=server_name,
