@@ -17,7 +17,7 @@ config = Config.model_validate(global_config.model_dump())
 
 if config.mc_servers_root_path is None or config.mc_servers_root_path == "":
     raise ValueError("Please set MC_SERVERS_ROOT_PATH")
-if config.mc_default_server == []:
-    config.mc_default_server = ""
+if config.mc_default_server == "":
+    config.mc_default_server = None
 if config.mc_group_id is None or config.mc_group_id == 0:
     raise ValueError("Please set MC_GROUP_ID")
