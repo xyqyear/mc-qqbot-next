@@ -2,6 +2,7 @@ from nonebot import CommandGroup
 from nonebot.params import Depends
 from nonebot.permission import SUPERUSER, Permission
 
+from ...bot import construct_single_forward_message_segment
 from ...dependencies import extract_arg_and_target
 from ...docker import send_rcon_command
 from ...permission import group_admin_or_owner
@@ -51,4 +52,5 @@ async def handle_whitelist_list(
 ):
     target_server = arg_and_target[1]
     result = await send_rcon_command(target_server, "whitelist list")
-    await whitelist_list.finish(result)
+    message = construct_single_forward_message_segment(result)
+    await whitelist_list.finish(message)
