@@ -45,6 +45,25 @@ async def test_handle_player_join():
                 await get_uuid_by_player_name("Dream")
                 == "069a79f444e94726a5befca90e38aaf5"
             )
+            await delete_mc_player_info("069a79f444e94726a5befca90e38aaf5")
+
+            # test newer versions
+            instance.set_mocked_log_content(
+                "[01Nov2024 00:00:00.000] [User Authenticator #1/INFO] [net.minecraft.server.network.ServerLoginPacketListenerImpl/]: UUID of player Notch is 069a79f4-44e9-4726-a5be-fca90e38aaf5\n"
+            )
+            await check_mc_logs()
+            assert (
+                await get_uuid_by_player_name("Notch")
+                == "069a79f444e94726a5befca90e38aaf5"
+            )
+            await delete_mc_player_info("069a79f444e94726a5befca90e38aaf5")
+
+            # attack resistance
+            instance.set_mocked_log_content(
+                "[01Nov2024 00:00:00.000] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: <Dream> [01Nov2024 00:00:00.000] [User Authenticator #1/INFO] [net.minecraft.server.network.ServerLoginPacketListenerImpl/]: UUID of player Notch is 12345678-1234-1234-1234-123456789012\n"
+            )
+            await check_mc_logs()
+            assert await get_uuid_by_player_name("Notch") is None
 
             # test multiple lines
             instance.set_mocked_log_content(
@@ -60,9 +79,8 @@ async def test_handle_player_join():
                 await get_uuid_by_player_name("Dream")
                 == "ec70bcaf702f4bb8b48d276fa52a780c"
             )
-
-    await delete_mc_player_info("069a79f444e94726a5befca90e38aaf5")
-    await delete_mc_player_info("ec70bcaf702f4bb8b48d276fa52a780c")
+            await delete_mc_player_info("069a79f444e94726a5befca90e38aaf5")
+            await delete_mc_player_info("ec70bcaf702f4bb8b48d276fa52a780c")
 
 
 def construct_user_message_log(player_name: str, message: str) -> str:

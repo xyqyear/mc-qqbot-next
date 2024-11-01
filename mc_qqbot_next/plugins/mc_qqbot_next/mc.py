@@ -80,8 +80,12 @@ def parse_player_uuid_and_name_from_log(log_content: str):
     Returns:
         list[PlayerInfo]: List of player UUID and name.
     """
+    # ^\[[^\]]+\]                 # Match the first bracket with any characters except ']'
+    # \s+                         # One or more whitespace characters
+    # \[User Authenticator.*?\]:  # Match 'User Authenticator' in the second bracket
+    # UUID of player (\w+) is ([a-f0-9\-]{36})$  # Capture username and UUID
     pattern = re.compile(
-        r"^\[\d{2}:\d{2}:\d{2}\] \[User Authenticator.*\]: UUID of player (\w+) is ([0-9a-fA-F-]{36})"
+        r"^\[[^\]]+\]\s+\[User Authenticator.*?\]: UUID of player (\w+) is ([a-f0-9\-]{36})$"
     )
 
     player_info_list = list[PlayerInfo]()
