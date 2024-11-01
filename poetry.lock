@@ -1459,7 +1459,7 @@ files = [
 
 [[package]]
 name = "minecraft-docker-manager-lib"
-version = "0.1.6"
+version = "0.1.7"
 description = "A manager lib for Minecraft server in Docker container"
 optional = false
 python-versions = "^3.12"
@@ -1475,8 +1475,8 @@ pyyaml = "^6.0.2"
 [package.source]
 type = "git"
 url = "https://github.com/xyqyear/minecraft-docker-manager-lib"
-reference = "v0.1.6"
-resolved_reference = "acbaa1241894ded5beb319479c966d325dc31fea"
+reference = "v0.1.7"
+resolved_reference = "0d2bd555cb498fceb0e2aa1fc97780fcd91c9e34"
 
 [[package]]
 name = "msgpack"
@@ -3356,4 +3356,4 @@ propcache = ">=0.2.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "82153f93cea7503820430597c28a2392a0363267b87d26a2f0188677ac2c4699"
+content-hash = "d5bdd25de5db68132d2fe0ec08eb30784187225d9fb56a235ebb2ad12b80fc66"
