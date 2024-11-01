@@ -98,7 +98,7 @@ async def locate_server_name_with_prefix(prefix: str):
         - locate_server_name('test') 返回 'test1'
         - locate_server_name('dev') 返回 None
     """
-    all_server_names = await get_running_server_names()
+    all_server_names = await get_port_sorted_running_server_names()
     if prefix in all_server_names:
         return prefix
     for server_name in all_server_names:
