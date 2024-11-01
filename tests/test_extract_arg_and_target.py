@@ -67,17 +67,17 @@ async def test_extract_arg_and_target_no_default_server(app: App):
     mock_docker_mc_manager = MockDockerMCManager(
         instances=[
             MockMCInstance(
-                name="server1",
-                send_command_response=send_command_response,
-                get_server_info_response=MockMCServerInfo(
-                    name="server1", game_port=25565
-                ),
-            ),
-            MockMCInstance(
                 name="server2",
                 send_command_response=send_command_response,
                 get_server_info_response=MockMCServerInfo(
                     name="server2", game_port=25566
+                ),
+            ),
+            MockMCInstance(
+                name="server1",
+                send_command_response=send_command_response,
+                get_server_info_response=MockMCServerInfo(
+                    name="server1", game_port=25565
                 ),
             ),
         ],

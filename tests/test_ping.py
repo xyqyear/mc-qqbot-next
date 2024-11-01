@@ -12,7 +12,7 @@ from .onebot_mock_send import bot_receive_event
 
 
 @pytest.mark.asyncio
-async def test_say_unbound_user(app: App):
+async def test_ping(app: App):
     from nonebot_plugin_orm import init_orm
 
     from mc_qqbot_next.plugins.mc_qqbot_next.commands.mc.ping import ping

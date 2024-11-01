@@ -8,15 +8,6 @@ from .config import config
 docker_mc_manager = DockerMCManager(config.mc_servers_root_path)
 
 
-async def get_first_running_server_name():
-    """
-    获取第一个运行中的 Minecraft 服务器名称
-    会过滤掉 config.excluded_servers 中的服务器
-    """
-    running_servers = await get_running_server_names()
-    return running_servers[0] if running_servers else None
-
-
 async def get_running_server_names():
     """
     获取所有运行中的 Minecraft 服务器名称
@@ -29,6 +20,32 @@ async def get_running_server_names():
             running_servers,
         )
     )
+
+
+async def get_port_sorted_running_server_names():
+    """
+    获取所有运行中的 Minecraft 服务器名称，并按照端口号排序
+    """
+    running_servers = await get_running_server_names()
+    servers_info = await asyncio.gather(
+        *[
+            docker_mc_manager.get_instance(server_name).get_server_info()
+            for server_name in running_servers
+        ]
+    )
+    servers_info = sorted(servers_info, key=lambda server_info: server_info.game_port)
+    return [server_info.name for server_info in servers_info]
+
+
+async def get_running_server_name_with_lowest_port():
+    """
+    获取端口号最小的运行中的 Minecraft 服务器名称
+    会过滤掉 config.excluded_servers 中的服务器
+    """
+    running_servers = await get_port_sorted_running_server_names()
+    if running_servers:
+        return running_servers[0]
+    return None
 
 
 async def send_rcon_command(server_name: str, command: str):
@@ -104,26 +121,12 @@ async def list_players_for_all_servers():
             "minigames": None  # 获取玩家列表失败
         }
     """
-    running_servers = await get_running_server_names()
-    running_servers = list(
-        filter(
-            lambda server_name: server_name not in config.mc_excluded_servers,
-            running_servers,
-        )
-    )
-    # server_info is used for sorting the servers by game_port
-    servers_info = await asyncio.gather(
-        *[
-            docker_mc_manager.get_instance(server_name).get_server_info()
-            for server_name in running_servers
-        ]
-    )
-    servers_info = sorted(servers_info, key=lambda server_info: server_info.game_port)
+    server_name_list = await get_port_sorted_running_server_names()
 
     online_players_list = await asyncio.gather(
         *[
-            docker_mc_manager.get_instance(server_info.name).list_players()
-            for server_info in servers_info
+            docker_mc_manager.get_instance(server_name).list_players()
+            for server_name in server_name_list
         ],
         return_exceptions=True,
     )
@@ -134,8 +137,8 @@ async def list_players_for_all_servers():
     ]
 
     return {
-        server_info.name: players
-        for server_info, players in zip(servers_info, online_players_list)
+        server_name: players
+        for server_name, players in zip(server_name_list, online_players_list)
     }
 
 
