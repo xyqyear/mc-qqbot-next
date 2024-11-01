@@ -22,6 +22,7 @@ class CommandTestCase:
     matcher: type[Matcher]  # The command matcher to test
     requires_permission_check: bool = True
     role: Literal["owner", "admin", "member"] = "admin"
+    respond_in_forward_message: bool = False
 
 
 async def run_command_test(app: App, test_case: CommandTestCase):
@@ -47,7 +48,11 @@ async def run_command_test(app: App, test_case: CommandTestCase):
             role=test_case.role,
         )
         await bot_receive_event(
-            app, test_case.matcher, event, f"[server1] {test_case.mock_response}"
+            app,
+            test_case.matcher,
+            event,
+            f"[server1] {test_case.mock_response}",
+            respond_in_forward_message=test_case.respond_in_forward_message,
         )
         mock_docker_mc_manager.assert_rcon_sent_to_server(
             "server1", test_case.mc_command
@@ -141,5 +146,6 @@ async def test_whitelist_commands(app: App):
             matcher=whitelist_list,
             role="member",
             requires_permission_check=False,
+            respond_in_forward_message=True,
         ),
     )
