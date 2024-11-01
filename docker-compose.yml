@@ -3,7 +3,7 @@ services:
     build: .  
     image: ghcr.io/xyqyear/mc-qqbot-next:latest
     environment:
-      SUPERUSERS: '["215908558"]'
+      TZ: "Asia/Shanghai"
       MC_EXCLUDED_SERVERS: "[]"
       MC_SERVERS_ROOT_PATH: "/root/docker-data/mc-testing"
       MC_DEFAULT_SERVER: "server1"
