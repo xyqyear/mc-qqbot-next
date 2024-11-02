@@ -182,8 +182,8 @@ async def tell_raw(
 ):
     message = message.replace("\\", "\\\\")
     for line in message.splitlines():
-        await docker_mc_manager.get_instance(server_name).send_command_rcon(
-            f'tellraw {target} {{"text": "{line}", "color": "{color}"}}'
+        await send_rcon_command(
+            server_name, f'tellraw {target} {{"text": "{line}", "color": "{color}"}}'
         )
 
 
