@@ -1,6 +1,6 @@
 [project]
 name = "mc-qqbot-next"
-version = "0.3.9"
+version = "0.3.10"
 description = "QQ bot for managing Minecraft servers running in docker, and more"
 readme = "README.md"
 requires-python = ">=3.12, <4.0"
@@ -15,7 +15,7 @@ builtin_plugins = []
 
 [tool.poetry]
 name = "mc-qqbot-next"
-version = "0.3.9"
+version = "0.3.10"
 description = "QQ bot for managing Minecraft servers running in docker, and more"
 authors = ["xyqyear <xyqyear@gmail.com>"]
 license = "MIT"
