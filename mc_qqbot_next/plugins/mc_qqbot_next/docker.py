@@ -57,6 +57,7 @@ async def send_rcon_command(server_name: str, command: str):
     result = await docker_mc_manager.get_instance(server_name).send_command_rcon(
         command
     )
+    logger.info(f"RCON command result: {result}")
     return f"[{server_name}] {result}"
 
 
