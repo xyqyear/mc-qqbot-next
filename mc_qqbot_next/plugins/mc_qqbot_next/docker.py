@@ -214,7 +214,7 @@ async def send_message(
     if target_player is None:
         target_player = "@a"
 
-    logger.info(f"Sending message to {target_player} in {target_servers}")
+    logger.info(f"Sending {message} to {target_player} in {target_servers}")
     tasks = [
         tell_raw(message, server_name, target_player, color)
         for server_name in target_servers
