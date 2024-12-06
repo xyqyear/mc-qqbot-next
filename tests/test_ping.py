@@ -1,3 +1,5 @@
+import asyncio
+
 import pytest
 from nonebug import App
 
@@ -15,6 +17,7 @@ async def test_ping(app: App):
     from nonebot_plugin_orm import init_orm
 
     from mc_qqbot_next.plugins.mc_qqbot_next.commands.mc.ping import ping
+    from mc_qqbot_next.plugins.mc_qqbot_next.config import config
 
     await init_orm()
 
@@ -61,4 +64,40 @@ async def test_ping(app: App):
             ping,
             event,
             "[server2]: player3\n[server1]: player1, player2\n无响应: [server3]",
+        )
+
+        # test timeout and error
+
+        async def mock_list_players1(*args, **kwargs):
+            raise RuntimeError("Error")
+
+        mock_docker_mc_manager.instances_dict[
+            "server1"
+        ].list_players.side_effect = mock_list_players1
+
+        await bot_receive_event(
+            app,
+            ping,
+            event,
+            "[server2]: player3\n无响应: [server1], [server3]",
+        )
+
+        async def mock_list_players2(*args, **kwargs):
+            await asyncio.sleep(2)
+
+        config.mc_list_players_timeout_seconds = 1
+        mock_docker_mc_manager.instances_dict[
+            "server1"
+        ].list_players.side_effect = mock_docker_mc_manager.instances_dict[
+            "server1"
+        ]._list_players
+        mock_docker_mc_manager.instances_dict[
+            "server2"
+        ].list_players.side_effect = mock_list_players2
+
+        await bot_receive_event(
+            app,
+            ping,
+            event,
+            "[server1]: player1, player2\n无响应: [server2], [server3]",
         )

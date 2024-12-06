@@ -10,6 +10,7 @@ class Config(BaseModel):
     mc_default_server: str | None = None
     mc_group_id: int = Field(None, validate_default=False)
     mc_restart_wait_seconds: int = 60 * 10
+    mc_list_players_timeout_seconds: int = 5
 
 
 global_config = get_driver().config

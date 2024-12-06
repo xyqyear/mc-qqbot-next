@@ -26,6 +26,7 @@ async def get_running_server_names():
 async def get_port_sorted_running_server_names():
     """
     获取所有运行中的 Minecraft 服务器名称，并按照端口号排序
+    会过滤掉 config.excluded_servers 中的服务器
     """
     running_servers = await get_running_server_names()
     servers_info = await asyncio.gather(
@@ -117,6 +118,36 @@ async def locate_server_name_with_prefix(prefix: str):
     return None
 
 
+async def list_players(
+    server_name: str, timeout: int = config.mc_list_players_timeout_seconds
+):
+    """
+    获取 Minecraft 服务器在线玩家列表
+
+    Args:
+        server_name (str): 服务器名称
+        timeout (int): 超时时间
+
+    Returns:
+        list[str] | None: 在线玩家列表或获取失败时为 None
+    """
+    instance = docker_mc_manager.get_instance(server_name)
+    if await instance.paused():
+        logger.warning(f"Server {server_name} is paused")
+        return list[str]()
+    task = instance.list_players()
+    try:
+        return await asyncio.wait_for(task, timeout)
+    except asyncio.TimeoutError:
+        logger.warning(
+            f"Timeout when listing players for {server_name}. timeout={timeout}"
+        )
+        return None
+    except RuntimeError as e:
+        logger.warning(f"Error when listing players for {server_name}: {e}")
+        return None
+
+
 async def list_players_for_all_servers():
     """
     获取所有运行中的 Minecraft 服务器及其在线玩家列表
@@ -137,10 +168,7 @@ async def list_players_for_all_servers():
     server_name_list = await get_port_sorted_running_server_names()
 
     online_players_list = await asyncio.gather(
-        *[
-            docker_mc_manager.get_instance(server_name).list_players()
-            for server_name in server_name_list
-        ],
+        *[list_players(server_name) for server_name in server_name_list],
         return_exceptions=True,
     )
 
@@ -181,7 +209,7 @@ async def tell_raw(
     target: str = "@a",
     color: ColorsT = "yellow",
 ):
-    message = message.replace("\\", "\\\\")
+    message = message.replace("\\", "\\\\").replace('"', '\\"')
     for line in message.splitlines():
         await send_rcon_command(
             server_name, f'tellraw {target} {{"text": "{line}", "color": "{color}"}}'

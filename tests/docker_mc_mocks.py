@@ -86,6 +86,7 @@ class MockMCInstance:
         self.exists = AsyncMock(side_effect=self._exists)
         self.created = AsyncMock(side_effect=self._created)
         self.running = AsyncMock(side_effect=self._running)
+        self.paused = AsyncMock(return_value=False)
         self.wait_until_healthy = AsyncMock()
 
     async def _send_command(self, *args, **kwargs):
