@@ -1,3 +1,4 @@
+import aiohttp
 import pytest
 
 
@@ -36,11 +37,11 @@ async def test_find_uuid_by_name():
 async def test_find_name_by_uuid():
     from mc_qqbot_next.plugins.mc_qqbot_next.mc import find_name_by_uuid
 
-    with pytest.raises(ValueError):
+    with pytest.raises(aiohttp.ClientError):
         # uuid with all 0s
         await find_name_by_uuid("00000000-0000-0000-0000-000000000000")
 
-    with pytest.raises(ValueError):
+    with pytest.raises(aiohttp.ClientResponseError):
         # invalid uuid
         await find_name_by_uuid("1")
 

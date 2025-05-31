@@ -133,12 +133,28 @@ async def test_extract_arg_and_target_bare_command(app: App):
             ].restart.assert_awaited_once()
             mock_docker_mc_manager.reset_mocks()
 
-        # test default server
-        await run_test("/restart", "server1")
-        # make sure excluded server is not selected
-        await run_test("/restart /o", "other")
-        await run_test("/restart /e", "server1")
+        async def run_test_error(message_str, expected_error):
+            event = create_group_message_event(message_str, role="admin")
+            async with app.test_matcher(restart) as ctx:
+                adapter = nonebot.get_adapter(Onebot11Adapter)
+                bot = ctx.create_bot(base=Onebot11Bot, adapter=adapter)
+                ctx.receive_event(bot, event)
+                ctx.should_pass_permission(restart)
+                ctx.should_pass_rule(restart)
+                ctx.should_call_send(event, expected_error, result=None)
+                ctx.should_finished(restart)
 
+            # Make sure no restart was actually called
+            for instance in mock_docker_mc_manager.instances_dict.values():
+                instance.restart.assert_not_called()
+            mock_docker_mc_manager.reset_mocks()
+
+        # test default server - should now fail because no explicit server
+        await run_test_error("/restart", "重启服务器需要明确指定目标服务器")
+        # make sure non-existing server is not selected
+        await run_test_error("/restart /k", "重启服务器需要明确指定目标服务器")
+        # make sure excluded server is not selected
+        await run_test_error("/restart /e", "重启服务器需要明确指定目标服务器")
         # test specified server
         await run_test("/restart /server2", "server2")
         await run_test("/restart /s", "server1")

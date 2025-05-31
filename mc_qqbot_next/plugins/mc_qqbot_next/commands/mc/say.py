@@ -4,7 +4,7 @@ from nonebot.matcher import Matcher
 from nonebot.params import Depends
 
 from ...db.crud.message import create_message_target
-from ...dependencies import extract_arg_and_target, get_player_name
+from ...dependencies import CommandTarget, extract_arg_and_target, get_player_name
 from ...docker import send_message
 from ...log import logger
 from ...rules import is_from_configured_group
@@ -19,10 +19,10 @@ say = on_command(
 @say.handle()
 async def handle_say(
     event: MessageEvent,
-    arg_and_target: tuple[str, str] = Depends(extract_arg_and_target),
+    command_target: CommandTarget = Depends(extract_arg_and_target),
     player_name: str | None = Depends(get_player_name),
 ):
-    message, target_server = arg_and_target
+    message, target_server = command_target.arg, command_target.target_server
 
     await actual_send_message(
         matcher=say,

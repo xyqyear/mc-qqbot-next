@@ -1,4 +1,5 @@
 import re
+from dataclasses import dataclass
 
 from nonebot.adapters import Event
 from nonebot.adapters.onebot.v11 import Message, MessageEvent
@@ -15,9 +16,27 @@ from .docker import (
 from .log import logger
 
 
+@dataclass
+class CommandTarget:
+    """
+    表示命令的参数和目标服务器信息
+    
+    Attributes:
+        arg (str): 命令参数内容
+        target_server (str): 目标服务器名称
+        is_explicit (bool): 是否显式指定了目标服务器
+    """
+    arg: str
+    target_server: str
+    is_explicit: bool
+
+
 async def extract_content_and_target_from_str(command: str) -> tuple[str, str | None]:
     """
     见 extract_content_and_target
+    
+    Returns:
+        tuple[str, str | None, bool]: (command_content, target_server)
     """
     match = re.search(r"\s*/(\S+)$", command)
     if match:
@@ -30,7 +49,7 @@ async def extract_content_and_target_from_str(command: str) -> tuple[str, str | 
 
 async def extract_arg_and_target(
     matcher: Matcher, msg: Message = CommandArg()
-) -> tuple[str, str]:
+) -> CommandTarget:
     """
     从消息中提取命令内容和目标服务器名称
 
@@ -38,22 +57,22 @@ async def extract_arg_and_target(
         msg (Message): 输入的消息对象
 
     Returns:
-        tuple[str, str]:
-            - 第一个元素是去除目标服务器后缀的命令内容
-            - 第二个元素是目标服务器名称（如果没有指定则使用默认服务器）
+        CommandTarget: 包含命令参数、目标服务器和是否显式指定的信息
 
     Examples:
         >>> "hello /s"
-        ('hello', 's')
+        CommandTarget(arg='hello', target_server='s', is_explicit=True)
         >>> "hello"
-        ('hello', 'default_server')
+        CommandTarget(arg='hello', target_server='default_server', is_explicit=False)
         >>> "message /test"
-        ('message', 'test')
+        CommandTarget(arg='message', target_server='test', is_explicit=True)
         >>> "/hello /test"
-        ('/hello', 'test')
+        CommandTarget(arg='/hello', target_server='test', is_explicit=True)
     """
     text = msg.extract_plain_text()
     command_content, target_server = await extract_content_and_target_from_str(text)
+    is_explicit = target_server is not None
+    
     if target_server is None:
         if config.mc_default_server is None:
             logger.info(
@@ -65,7 +84,12 @@ async def extract_arg_and_target(
             target_server = first_running_server
         else:
             target_server = config.mc_default_server
-    return command_content, target_server
+    
+    return CommandTarget(
+        arg=command_content,
+        target_server=target_server,
+        is_explicit=is_explicit
+    )
 
 
 async def get_player_name(event: Event) -> str | None:

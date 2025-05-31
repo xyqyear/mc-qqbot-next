@@ -30,12 +30,17 @@ async def find_name_by_uuid(uuid: str, timeout: int = 5):
     """
     async with aiohttp.ClientSession() as session:
         async with session.get(
-            f'https://sessionserver.mojang.com/session/minecraft/profile/{uuid.replace("-", "")}',
+            f"https://sessionserver.mojang.com/session/minecraft/profile/{uuid.replace('-', '')}",
             timeout=ClientTimeout(total=timeout),
         ) as response:
+            # make sure the response code is 200 OK
+            response.raise_for_status()
+            if response.status != 200:
+                logger.error(
+                    f"Failed to fetch profile for UUID {uuid}: {response.status}"
+                )
+                raise aiohttp.ClientError("Failed to fetch profile from Mojang API")
             profile_data = await response.json()
-            if profile_data is None or "errorMessage" in profile_data:
-                raise ValueError("Invalid UUID")
             profile = MinecraftProfile(**profile_data)
             logger.debug(f"Got name for {profile.id} from Mojang API: {profile.name}")
             return profile.name
