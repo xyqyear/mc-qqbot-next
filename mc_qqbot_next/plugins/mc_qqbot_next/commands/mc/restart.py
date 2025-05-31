@@ -6,7 +6,7 @@ from nonebot.params import Depends
 from nonebot.permission import SUPERUSER, Permission
 
 from ...config import config
-from ...dependencies import extract_arg_and_target
+from ...dependencies import CommandTarget, extract_arg_and_target
 from ...docker import healthy, restart_server
 from ...log import logger
 from ...permission import group_admin_or_owner
@@ -21,9 +21,12 @@ restart = on_command(
 
 @restart.handle()
 async def handle_restart(
-    arg_and_target: tuple[str, str] = Depends(extract_arg_and_target),
+    command_target: CommandTarget = Depends(extract_arg_and_target),
 ):
-    _, target_server = arg_and_target
+    if not command_target.is_explicit:
+        await restart.finish("重启服务器需要明确指定目标服务器")
+    
+    target_server = command_target.target_server
     logger.info(f"Trying to restart {target_server}")
     await restart_server(target_server)
     await restart.send(f"[{target_server}] 正在重启")
